@@ -1,0 +1,424 @@
+// ==============================================
+// admin.mojo - Prisma Schema
+// Platform Administration Database
+// ==============================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==============================================
+// Regional Agreements
+// Exklusive Vertriebsvereinbarungen für Regionen
+// ==============================================
+
+model RegionalAgreement {
+  id                String   @id @default(uuid()) @db.Uuid
+  tenantId          String   @map("tenant_id")
+  tenantName        String   @map("tenant_name")
+  tenantSlug        String   @map("tenant_slug")
+  
+  // Region definition
+  regionCodes       String[] @map("region_codes") // ISO 3166-1 Alpha-2: ['DE', 'AT', 'CH']
+  regionName        String   @map("region_name")  // Human readable: "DACH"
+  
+  // Commission
+  commissionPercent Decimal  @map("commission_percent") @db.Decimal(5, 2) // 30.00
+  appliesTo         AppliesTo @map("applies_to") @default(PLATFORM_PRODUCTS)
+  
+  // Contract
+  contractSignedAt  DateTime? @map("contract_signed_at")
+  contractSignedBy  String?   @map("contract_signed_by")
+  contractDocumentUrl String? @map("contract_document_url")
+  contractVersion   String    @map("contract_version") @default("1.0")
+  
+  // Validity
+  validFrom         DateTime  @map("valid_from") @default(now())
+  validUntil        DateTime? @map("valid_until")
+  status            AgreementStatus @default(PENDING)
+  
+  // Metadata
+  notes             String?
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+  createdBy         String?   @map("created_by")
+
+  @@unique([tenantId])
+  @@map("regional_agreements")
+}
+
+enum AppliesTo {
+  PLATFORM_PRODUCTS
+  ALL_PRODUCTS
+}
+
+enum AgreementStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+  TERMINATED
+}
+
+// ==============================================
+// Platform Products
+// Die 6 User Journey Levels
+// ==============================================
+
+model PlatformProduct {
+  id                String   @id @default(uuid()) @db.Uuid
+  
+  // === BASIC INFO ===
+  // name: max 30 chars - Der Produktname (z.B. "LEBENSENERGIE")
+  name              String   @db.VarChar(30)
+  slug              String   @unique
+  // subtitle: max 40 chars - Kurzer Slogan (z.B. "Finde dein MOJO (wieder)")
+  subtitle          String?  @db.VarChar(40)
+  // description: max 500 chars - Ausführliche Beschreibung
+  description       String?  @db.VarChar(500)
+  
+  // === USER JOURNEY ===
+  // User Journey Level (1-6)
+  userJourneyLevel  Int      @map("user_journey_level")
+  levelName         String   @map("level_name") // LEBENSENERGIE, CAMPUS, etc.
+  
+  // === STYLING ===
+  levelColor        String   @map("level_color") // Hex color (e.g., #66dd99)
+  textColor         String   @map("text_color") @default("#000000") // Text on color
+  icon              String   @default("Zap") // Lucide icon name
+  
+  // === PRICING ===
+  priceNet          Decimal  @map("price_net") @db.Decimal(10, 2)
+  originalPrice     Decimal? @map("original_price") @db.Decimal(10, 2) // Streichpreis
+  currency          String   @default("EUR")
+  billingType       BillingType @map("billing_type") @default(ONE_TIME)
+  billingInterval   BillingInterval? @map("billing_interval") // nur bei SUBSCRIPTION
+  
+  // === COURSE CONTENT ===
+  // duration: max 20 chars - z.B. "8 Wochen", "Fortlaufend"
+  duration          String?  @db.VarChar(20)
+  // Diese werden aus campus.mojo dynamisch gezogen, hier nur als Override/Default
+  modulesCount      Int?     @map("modules_count")
+  lessonsCount      Int?     @map("lessons_count")
+  // Features als JSON Array: ["Feature 1", "Feature 2", ...]
+  features          Json?    @default("[]")
+  
+  // === FLAGS ===
+  isPopular         Boolean  @default(false) @map("is_popular")
+  isExclusive       Boolean  @default(false) @map("is_exclusive")
+  isActive          Boolean  @default(true) @map("is_active")
+  sortOrder         Int      @default(0) @map("sort_order")
+  
+  // === STRIPE ===
+  stripeProductId   String?  @map("stripe_product_id")
+  stripePriceId     String?  @map("stripe_price_id")
+  
+  // === CAMPUS INTEGRATION ===
+  // Course ID in campus.mojo für dynamische Modul/Lektionen-Daten
+  campusCourseId    String?  @map("campus_course_id")
+  
+  // Metadata
+  metadata          Json?
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  entitlements      ProductEntitlement[]
+
+  @@map("platform_products")
+}
+
+enum BillingType {
+  ONE_TIME
+  SUBSCRIPTION
+}
+
+enum BillingInterval {
+  MONTHLY
+  YEARLY
+}
+
+model ProductEntitlement {
+  id              String   @id @default(uuid()) @db.Uuid
+  productId       String   @map("product_id") @db.Uuid
+  
+  resourceType    String   @map("resource_type") // course, feature, app_access
+  resourceId      String   @map("resource_id")
+  resourceName    String?  @map("resource_name")
+  
+  durationDays    Int?     @map("duration_days") // null = unlimited
+  quantity        Int      @default(1)
+  
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  product         PlatformProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("product_entitlements")
+}
+
+// ==============================================
+// Customer Attribution
+// Platform-weites Affiliate-Tracking
+// ==============================================
+
+model CustomerAttribution {
+  id                  String   @id @default(uuid()) @db.Uuid
+  
+  // Customer (Clerk User)
+  customerUserId      String   @unique @map("customer_user_id") // Clerk User ID
+  customerEmail       String?  @map("customer_email")
+  
+  // Attributed Tenant (Affiliate)
+  attributedTenantId  String   @map("attributed_tenant_id")
+  attributedTenantName String? @map("attributed_tenant_name")
+  
+  // Attribution details
+  attributedAt        DateTime @map("attributed_at") @default(now())
+  attributionExpiresAt DateTime @map("attribution_expires_at") // attributed_at + 3 years
+  
+  // Source tracking
+  source              AttributionSource @default(AFFILIATE_CODE)
+  sourceRef           String?  @map("source_ref") // Affiliate code or referral ID
+  
+  // First purchase tracking
+  firstPurchaseAt     DateTime? @map("first_purchase_at")
+  firstPurchaseOrderId String?  @map("first_purchase_order_id")
+  
+  // Stats (cached)
+  totalPurchases      Int      @default(0) @map("total_purchases")
+  totalRevenue        Decimal  @default(0) @map("total_revenue") @db.Decimal(12, 2)
+  totalCommissionPaid Decimal  @default(0) @map("total_commission_paid") @db.Decimal(12, 2)
+  
+  // Metadata
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+
+  @@index([attributedTenantId])
+  @@index([attributionExpiresAt])
+  @@map("customer_attributions")
+}
+
+enum AttributionSource {
+  AFFILIATE_CODE
+  REFERRAL_LINK
+  MANUAL
+  MIGRATION
+}
+
+// ==============================================
+// Commissions
+// Provisions-Berechnung und Auszahlung
+// ==============================================
+
+model Commission {
+  id                String   @id @default(uuid()) @db.Uuid
+  
+  // Order reference
+  orderId           String   @map("order_id")
+  orderDate         DateTime @map("order_date")
+  orderAmount       Decimal  @map("order_amount") @db.Decimal(12, 2) // Netto
+  
+  // Product info
+  productId         String?  @map("product_id")
+  productName       String?  @map("product_name")
+  isPlatformProduct Boolean  @map("is_platform_product") @default(false)
+  
+  // Seller (who sold)
+  sellerTenantId    String?  @map("seller_tenant_id") // null = Platform
+  sellerTenantName  String?  @map("seller_tenant_name")
+  
+  // Recipient (who receives commission)
+  recipientTenantId String   @map("recipient_tenant_id")
+  recipientTenantName String? @map("recipient_tenant_name")
+  
+  // Commission details
+  commissionType    CommissionType @map("commission_type")
+  commissionPercent Decimal  @map("commission_percent") @db.Decimal(5, 2)
+  commissionAmount  Decimal  @map("commission_amount") @db.Decimal(12, 2)
+  
+  // Customer info
+  customerUserId    String?  @map("customer_user_id")
+  customerRegion    String?  @map("customer_region") // ISO country code
+  isFirstPurchase   Boolean  @map("is_first_purchase") @default(false)
+  
+  // Status
+  status            CommissionStatus @default(PENDING)
+  
+  // Approval
+  approvedAt        DateTime? @map("approved_at")
+  approvedBy        String?   @map("approved_by")
+  
+  // Payout
+  payoutId          String?   @map("payout_id") @db.Uuid
+  paidAt            DateTime? @map("paid_at")
+  stripeTransferId  String?   @map("stripe_transfer_id")
+  
+  // Refund handling
+  refundedAt        DateTime? @map("refunded_at")
+  refundReason      String?   @map("refund_reason")
+  
+  // Metadata
+  metadata          Json?
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  payout            Payout?   @relation(fields: [payoutId], references: [id])
+
+  @@index([orderId])
+  @@index([recipientTenantId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("commissions")
+}
+
+enum CommissionType {
+  REGIONAL_EXCLUSIVE  // 30% DACH
+  AFFILIATE_FIRST     // 20% Erstkauf
+  AFFILIATE_RECURRING // 10% Folgekauf
+  PLATFORM_FEE        // 2% Stripe Connect
+}
+
+enum CommissionStatus {
+  PENDING     // Warte auf Genehmigung (30 Tage)
+  APPROVED    // Genehmigt, warte auf Auszahlung
+  PAID        // Ausgezahlt
+  REFUNDED    // Zurückgebucht wegen Refund
+  CANCELLED   // Storniert
+}
+
+// ==============================================
+// Payouts
+// Sammel-Auszahlungen via Stripe Connect
+// ==============================================
+
+model Payout {
+  id                String   @id @default(uuid()) @db.Uuid
+  
+  // Recipient
+  recipientTenantId String   @map("recipient_tenant_id")
+  recipientTenantName String? @map("recipient_tenant_name")
+  stripeAccountId   String   @map("stripe_account_id")
+  
+  // Amount
+  totalAmount       Decimal  @map("total_amount") @db.Decimal(12, 2)
+  commissionCount   Int      @map("commission_count")
+  currency          String   @default("EUR")
+  
+  // Period
+  periodStart       DateTime @map("period_start")
+  periodEnd         DateTime @map("period_end")
+  
+  // Stripe
+  stripeTransferId  String?  @map("stripe_transfer_id")
+  stripePayoutId    String?  @map("stripe_payout_id")
+  
+  // Status
+  status            PayoutStatus @default(PENDING)
+  
+  // Processing
+  processedAt       DateTime? @map("processed_at")
+  processedBy       String?   @map("processed_by")
+  failedAt          DateTime? @map("failed_at")
+  failureReason     String?   @map("failure_reason")
+  
+  // Metadata
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  commissions       Commission[]
+
+  @@index([recipientTenantId])
+  @@index([status])
+  @@map("payouts")
+}
+
+enum PayoutStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+// ==============================================
+// Contract Signatures
+// Digitale Vertragsunterzeichnungen
+// ==============================================
+
+model ContractSignature {
+  id                String   @id @default(uuid()) @db.Uuid
+  
+  // Contract type
+  contractType      ContractType @map("contract_type")
+  contractVersion   String   @map("contract_version")
+  
+  // Signer info
+  tenantId          String   @map("tenant_id")
+  tenantName        String?  @map("tenant_name")
+  signerUserId      String   @map("signer_user_id") // Clerk User ID
+  signerName        String   @map("signer_name")
+  signerEmail       String   @map("signer_email")
+  
+  // Signature
+  signatureText     String   @map("signature_text") // Typed name as signature
+  signedAt          DateTime @map("signed_at") @default(now())
+  ipAddress         String?  @map("ip_address")
+  userAgent         String?  @map("user_agent")
+  
+  // Contract content hash (for integrity)
+  contractHash      String   @map("contract_hash")
+  
+  // Metadata
+  metadata          Json?
+  createdAt         DateTime @default(now()) @map("created_at")
+
+  @@index([tenantId])
+  @@index([contractType])
+  @@map("contract_signatures")
+}
+
+enum ContractType {
+  REGIONAL_DISTRIBUTOR
+  TENANT_AFFILIATE
+}
+
+// ==============================================
+// Audit Log
+// Alle administrativen Aktionen
+// ==============================================
+
+model AuditLog {
+  id          String   @id @default(uuid()) @db.Uuid
+  
+  // Actor
+  actorUserId String?  @map("actor_user_id")
+  actorEmail  String?  @map("actor_email")
+  actorRole   String?  @map("actor_role")
+  
+  // Action
+  action      String   // create, update, delete, approve, payout, etc.
+  resource    String   // regional_agreement, commission, payout, etc.
+  resourceId  String?  @map("resource_id")
+  
+  // Details
+  oldValue    Json?    @map("old_value")
+  newValue    Json?    @map("new_value")
+  metadata    Json?
+  
+  // Request info
+  ipAddress   String?  @map("ip_address")
+  userAgent   String?  @map("user_agent")
+  
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([actorUserId])
+  @@index([resource, resourceId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+

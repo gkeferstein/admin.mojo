@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: admin-mojo-postgres
+    environment:
+      POSTGRES_USER: admin_mojo
+      POSTGRES_PASSWORD: admin_mojo_dev
+      POSTGRES_DB: admin_mojo
+    ports:
+      - "5433:5432"
+    volumes:
+      - admin_mojo_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin_mojo -d admin_mojo"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  admin_mojo_postgres_data:
+

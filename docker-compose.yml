@@ -1,0 +1,141 @@
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:15-alpine
+    container_name: admin-mojo-db
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-admin_secure_password}
+      POSTGRES_DB: admin_db
+    volumes:
+      - admin-db-data:/var/lib/postgresql/data
+    networks:
+      - mojo-admin-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d admin_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # API Backend (Fastify)
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: admin-mojo-api
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      PORT: 3001
+      DATABASE_URL: postgresql://admin:${POSTGRES_PASSWORD:-admin_secure_password}@db:5432/admin_db
+      CLERK_SECRET_KEY: sk_test_yvQzIvRm8z9VMJvubKLWt5QjLbdaXmwKNJ8AoS4toa
+      PAYMENTS_API_URL: ${PAYMENTS_API_URL:-https://payments.mojo-institut.de/api/v1}
+      PAYMENTS_API_KEY: ${PAYMENTS_API_KEY}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - mojo-admin-network
+      - mojo-network
+    expose:
+      - "3001"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=mojo-network"
+      
+      # ========================================
+      # API Service Definition (unique name)
+      # ========================================
+      - "traefik.http.services.admin-platform-api.loadbalancer.server.port=3001"
+      
+      # PRODUCTION API Route: admin.mojo-institut.de/api
+      - "traefik.http.routers.admin-platform-api.rule=Host(`admin.mojo-institut.de`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.admin-platform-api.entrypoints=websecure"
+      - "traefik.http.routers.admin-platform-api.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.admin-platform-api.priority=100"
+      - "traefik.http.routers.admin-platform-api.service=admin-platform-api"
+      
+      # PRODUCTION Health Route
+      - "traefik.http.routers.admin-platform-health.rule=Host(`admin.mojo-institut.de`) && Path(`/health`)"
+      - "traefik.http.routers.admin-platform-health.entrypoints=websecure"
+      - "traefik.http.routers.admin-platform-health.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.admin-platform-health.priority=100"
+      - "traefik.http.routers.admin-platform-health.service=admin-platform-api"
+      
+      # DEV API Route: dev.admin.mojo-institut.de/api
+      - "traefik.http.routers.admin-platform-api-dev.rule=Host(`dev.admin.mojo-institut.de`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.admin-platform-api-dev.entrypoints=websecure"
+      - "traefik.http.routers.admin-platform-api-dev.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.admin-platform-api-dev.priority=100"
+      - "traefik.http.routers.admin-platform-api-dev.service=admin-platform-api"
+      
+      # DEV Health Route
+      - "traefik.http.routers.admin-platform-health-dev.rule=Host(`dev.admin.mojo-institut.de`) && Path(`/health`)"
+      - "traefik.http.routers.admin-platform-health-dev.entrypoints=websecure"
+      - "traefik.http.routers.admin-platform-health-dev.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.admin-platform-health-dev.priority=100"
+      - "traefik.http.routers.admin-platform-health-dev.service=admin-platform-api"
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"require('http').get('http://localhost:3001/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))\""]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Web Frontend (Next.js)
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-https://dev.admin.mojo-institut.de}
+        - NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_bWVhc3VyZWQtYmVkYnVnLTE5LmNsZXJrLmFjY291bnRzLmRldiQ
+    container_name: admin-mojo-web
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      PORT: 3000
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://dev.admin.mojo-institut.de}
+      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_bWVhc3VyZWQtYmVkYnVnLTE5LmNsZXJrLmFjY291bnRzLmRldiQ
+      CLERK_SECRET_KEY: sk_test_yvQzIvRm8z9VMJvubKLWt5QjLbdaXmwKNJ8AoS4toa
+    depends_on:
+      - api
+    networks:
+      - mojo-admin-network
+      - mojo-network
+    expose:
+      - "3000"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=mojo-network"
+      
+      # ========================================
+      # Web Service Definition (unique name)
+      # ========================================
+      - "traefik.http.services.admin-platform-web.loadbalancer.server.port=3000"
+      
+      # PRODUCTION Route: admin.mojo-institut.de
+      - "traefik.http.routers.admin-platform-web.rule=Host(`admin.mojo-institut.de`)"
+      - "traefik.http.routers.admin-platform-web.entrypoints=websecure"
+      - "traefik.http.routers.admin-platform-web.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.admin-platform-web.priority=1"
+      - "traefik.http.routers.admin-platform-web.service=admin-platform-web"
+      
+      # DEVELOPMENT Route: dev.admin.mojo-institut.de
+      - "traefik.http.routers.admin-platform-web-dev.rule=Host(`dev.admin.mojo-institut.de`)"
+      - "traefik.http.routers.admin-platform-web-dev.entrypoints=websecure"
+      - "traefik.http.routers.admin-platform-web-dev.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.admin-platform-web-dev.priority=1"
+      - "traefik.http.routers.admin-platform-web-dev.service=admin-platform-web"
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"require('http').get('http://localhost:3000/dashboard', (r) => process.exit(r.statusCode >= 200 && r.statusCode < 400 ? 0 : 1)).on('error', () => process.exit(1))\""]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  mojo-admin-network:
+    driver: bridge
+  mojo-network:
+    external: true
+
+volumes:
+  admin-db-data:

@@ -1,0 +1,32 @@
+{
+  "name": "admin.mojo",
+  "version": "0.1.0",
+  "private": true,
+  "description": "MOJO Platform Administration",
+  "scripts": {
+    "dev": "pnpm --parallel dev",
+    "build": "pnpm --parallel build",
+    "start": "pnpm --parallel start",
+    "lint": "pnpm --parallel lint",
+    "typecheck": "pnpm --parallel typecheck",
+    "db:migrate": "pnpm --filter api db:migrate",
+    "db:generate": "pnpm --filter api db:generate",
+    "db:seed": "pnpm --filter api db:seed",
+    "db:studio": "pnpm --filter api db:studio",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs -f",
+    "docker:build": "docker compose build"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "packageManager": "pnpm@8.15.0",
+  "author": "MOJO Institut",
+  "license": "ISC"
+}
+

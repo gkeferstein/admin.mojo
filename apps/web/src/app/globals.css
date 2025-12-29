@@ -1,0 +1,299 @@
+/**
+ * MOJO Design System - admin.mojo Global Styles
+ */
+
+/* Google Fonts Import */
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   LIGHT MODE (DEFAULT)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* Base Colors - Light Mode */
+  --background: 0 0% 100%;
+  --foreground: 0 0% 3.9%;
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 3.9%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 0% 3.9%;
+  --primary: 142 71% 63%;
+  --primary-foreground: 0 0% 0%;
+  --secondary: 0 0% 96%;
+  --secondary-foreground: 0 0% 9%;
+  --muted: 0 0% 96%;
+  --muted-foreground: 0 0% 45%;
+  --accent: 271 68% 52%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 0 0% 90%;
+  --input: 0 0% 90%;
+  --ring: 142 71% 63%;
+  --radius: 0.75rem;
+
+  /* MOJO Primary Colors */
+  --mojo-primary: #66dd99;
+  --mojo-primary-dark: #44cc88;
+  --mojo-accent: #873acf;
+
+  /* Glassmorphism - Light Mode */
+  --mojo-glass-bg: rgba(255, 255, 255, 0.7);
+  --mojo-glass-border: rgba(102, 221, 153, 0.2);
+
+  /* Page Background - Light Mode */
+  --mojo-page-bg: #f8fafc;
+
+  /* Gradient Orbs - Light Mode */
+  --mojo-orb-green: #66dd99;
+  --mojo-orb-purple: #873acf;
+  --mojo-orb-cyan: #3aaed8;
+  --mojo-orb-opacity-1: 0.3;
+  --mojo-orb-opacity-2: 0.25;
+  --mojo-orb-opacity-3: 0.2;
+
+  /* Noise Overlay */
+  --mojo-noise-opacity: 0.02;
+
+  /* Scrollbar - Light Mode */
+  --mojo-scrollbar-track: rgba(0, 0, 0, 0.05);
+  --mojo-scrollbar-thumb: rgba(102, 221, 153, 0.4);
+  --mojo-scrollbar-thumb-hover: rgba(102, 221, 153, 0.6);
+
+  /* Selection */
+  --mojo-selection-bg: rgba(102, 221, 153, 0.3);
+
+  /* Typography */
+  --font-sans: 'Instrument Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   DARK MODE
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.dark {
+  /* Base Colors - Dark Mode */
+  --background: 0 0% 3.9%;
+  --foreground: 0 0% 98%;
+  --card: 0 0% 6%;
+  --card-foreground: 0 0% 98%;
+  --popover: 0 0% 6%;
+  --popover-foreground: 0 0% 98%;
+  --primary: 142 71% 63%;
+  --primary-foreground: 0 0% 0%;
+  --secondary: 0 0% 14%;
+  --secondary-foreground: 0 0% 98%;
+  --muted: 0 0% 14%;
+  --muted-foreground: 0 0% 63%;
+  --accent: 271 68% 52%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 62% 50%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 0 0% 14%;
+  --input: 0 0% 14%;
+  --ring: 142 71% 63%;
+
+  /* Glassmorphism - Dark Mode */
+  --mojo-glass-bg: rgba(255, 255, 255, 0.05);
+  --mojo-glass-border: rgba(102, 221, 153, 0.15);
+
+  /* Page Background - Dark Mode */
+  --mojo-page-bg: #030303;
+
+  /* Gradient Orbs - Dark Mode (more vibrant) */
+  --mojo-orb-opacity-1: 0.4;
+  --mojo-orb-opacity-2: 0.35;
+  --mojo-orb-opacity-3: 0.25;
+
+  /* Noise Overlay - Dark Mode */
+  --mojo-noise-opacity: 0.03;
+
+  /* Scrollbar - Dark Mode */
+  --mojo-scrollbar-track: rgba(255, 255, 255, 0.03);
+  --mojo-scrollbar-thumb: rgba(102, 221, 153, 0.3);
+  --mojo-scrollbar-thumb-hover: rgba(102, 221, 153, 0.5);
+
+  /* Selection - Dark Mode */
+  --mojo-selection-bg: rgba(102, 221, 153, 0.35);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   BASE STYLES
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: 'rlig' 1, 'calt' 1;
+  }
+
+  /* Selection styling */
+  ::selection {
+    background: var(--mojo-selection-bg);
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--mojo-scrollbar-track);
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--mojo-scrollbar-thumb);
+    border-radius: 4px;
+    transition: background 0.2s ease;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--mojo-scrollbar-thumb-hover);
+  }
+
+  /* Firefox scrollbar */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--mojo-scrollbar-thumb) var(--mojo-scrollbar-track);
+  }
+
+  /* Focus visible styling */
+  :focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   NOISE TEXTURE OVERLAY
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@layer components {
+  .mojo-noise {
+    position: relative;
+  }
+
+  .mojo-noise::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    opacity: var(--mojo-noise-opacity);
+    pointer-events: none;
+    z-index: 1;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   GRADIENT ORBS
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@layer components {
+  .mojo-orbs-container {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .mojo-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    pointer-events: none;
+    animation: float 8s ease-in-out infinite;
+    will-change: transform;
+  }
+
+  .mojo-orb-green {
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, var(--mojo-orb-green) 0%, transparent 70%);
+    opacity: var(--mojo-orb-opacity-1);
+    top: -200px;
+    right: -200px;
+    animation-delay: 0s;
+  }
+
+  .mojo-orb-purple {
+    width: 450px;
+    height: 450px;
+    background: radial-gradient(circle, var(--mojo-orb-purple) 0%, transparent 70%);
+    opacity: var(--mojo-orb-opacity-2);
+    bottom: -150px;
+    left: -150px;
+    animation-delay: -4s;
+  }
+
+  .mojo-orb-cyan {
+    width: 350px;
+    height: 350px;
+    background: radial-gradient(circle, var(--mojo-orb-cyan) 0%, transparent 70%);
+    opacity: var(--mojo-orb-opacity-3);
+    top: 40%;
+    left: 25%;
+    animation-delay: -2s;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   GLASSMORPHISM UTILITIES
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@layer components {
+  .mojo-glass {
+    background: var(--mojo-glass-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--mojo-glass-border);
+  }
+
+  .mojo-glass-card {
+    @apply mojo-glass;
+    border-radius: var(--radius);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   GRADIENT TEXT
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@layer components {
+  .mojo-text-gradient {
+    background: linear-gradient(135deg, var(--mojo-primary) 0%, var(--mojo-accent) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   GLOW EFFECTS
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@layer components {
+  .mojo-glow-primary {
+    box-shadow: 0 0 20px rgba(102, 221, 153, 0.3);
+  }
+
+  .mojo-glow-primary:hover {
+    box-shadow: 0 0 30px rgba(102, 221, 153, 0.4);
+  }
+}
