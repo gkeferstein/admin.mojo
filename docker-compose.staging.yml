@@ -44,8 +44,8 @@ services:
       - "traefik.http.routers.admin-api-staging-api.service=admin-api-staging-api"
       - "traefik.http.routers.admin-api-staging-api.priority=10"
       
-      # Staging Health Route: admin.staging.mojo-institut.de/health
-      - "traefik.http.routers.admin-api-staging-health.rule=Host(`admin.staging.mojo-institut.de`) && Path(`/health`)"
+      # Staging API Health Route: admin.staging.mojo-institut.de/api/health (for API health check)
+      - "traefik.http.routers.admin-api-staging-health.rule=Host(`admin.staging.mojo-institut.de`) && Path(`/api/health`)"
       - "traefik.http.routers.admin-api-staging-health.entrypoints=websecure"
       - "traefik.http.routers.admin-api-staging-health.tls.certresolver=letsencrypt"
       - "traefik.http.routers.admin-api-staging-health.middlewares=staging-basicauth@file,staging-headers@file"
@@ -92,6 +92,14 @@ services:
       - "traefik.http.routers.admin-web-staging-clerk.middlewares=staging-headers@file"
       - "traefik.http.routers.admin-web-staging-clerk.service=admin-web-staging-frontend"
       - "traefik.http.routers.admin-web-staging-clerk.priority=20"
+      
+      # Staging Health Route: admin.staging.mojo-institut.de/health (for Web health check)
+      - "traefik.http.routers.admin-web-staging-health.rule=Host(`admin.staging.mojo-institut.de`) && Path(`/health`)"
+      - "traefik.http.routers.admin-web-staging-health.entrypoints=websecure"
+      - "traefik.http.routers.admin-web-staging-health.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.admin-web-staging-health.middlewares=staging-basicauth@file,staging-headers@file"
+      - "traefik.http.routers.admin-web-staging-health.service=admin-web-staging-frontend"
+      - "traefik.http.routers.admin-web-staging-health.priority=25"
       
       # Staging Frontend Route: admin.staging.mojo-institut.de (exclude /api, /health, and Clerk routes)
       # Basic Auth aktiviert (gemäß Konvention) - Clerk-Routen explizit ausgeschlossen

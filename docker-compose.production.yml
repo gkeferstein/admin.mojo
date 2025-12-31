@@ -44,8 +44,8 @@ services:
       - "traefik.http.routers.admin-api-prod-api.service=admin-api-prod-api"
       - "traefik.http.routers.admin-api-prod-api.priority=10"
       
-      # Production Health Route: admin.mojo-institut.de/health
-      - "traefik.http.routers.admin-api-prod-health.rule=Host(`admin.mojo-institut.de`) && Path(`/health`)"
+      # Production API Health Route: admin.mojo-institut.de/api/health (for API health check)
+      - "traefik.http.routers.admin-api-prod-health.rule=Host(`admin.mojo-institut.de`) && Path(`/api/health`)"
       - "traefik.http.routers.admin-api-prod-health.entrypoints=websecure"
       - "traefik.http.routers.admin-api-prod-health.tls.certresolver=letsencrypt"
       - "traefik.http.routers.admin-api-prod-health.service=admin-api-prod-api"
@@ -82,6 +82,13 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=mojo-network"
+      
+      # Production Health Route: admin.mojo-institut.de/health (for Web health check)
+      - "traefik.http.routers.admin-web-prod-health.rule=Host(`admin.mojo-institut.de`) && Path(`/health`)"
+      - "traefik.http.routers.admin-web-prod-health.entrypoints=websecure"
+      - "traefik.http.routers.admin-web-prod-health.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.admin-web-prod-health.service=admin-web-prod-frontend"
+      - "traefik.http.routers.admin-web-prod-health.priority=25"
       
       # Production Frontend Route: admin.mojo-institut.de (exclude /api and /health)
       - "traefik.http.routers.admin-web-prod-frontend.rule=Host(`admin.mojo-institut.de`) && !PathPrefix(`/api`) && !Path(`/health`)"
