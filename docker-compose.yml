@@ -62,19 +62,21 @@ services:
       - "traefik.http.routers.admin-platform-health.priority=100"
       - "traefik.http.routers.admin-platform-health.service=admin-platform-api"
       
-      # DEV API Route: dev.admin.mojo-institut.de/api
-      - "traefik.http.routers.admin-platform-api-dev.rule=Host(`dev.admin.mojo-institut.de`) && PathPrefix(`/api`)"
-      - "traefik.http.routers.admin-platform-api-dev.entrypoints=websecure"
-      - "traefik.http.routers.admin-platform-api-dev.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.admin-platform-api-dev.priority=100"
-      - "traefik.http.routers.admin-platform-api-dev.service=admin-platform-api"
+      # STAGING API Route: admin.staging.mojo-institut.de/api
+      - "traefik.http.routers.admin-platform-api-staging.rule=Host(`admin.staging.mojo-institut.de`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.admin-platform-api-staging.entrypoints=websecure"
+      - "traefik.http.routers.admin-platform-api-staging.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.admin-platform-api-staging.middlewares=staging-basicauth@file,staging-headers@file"
+      - "traefik.http.routers.admin-platform-api-staging.priority=100"
+      - "traefik.http.routers.admin-platform-api-staging.service=admin-platform-api"
       
-      # DEV Health Route
-      - "traefik.http.routers.admin-platform-health-dev.rule=Host(`dev.admin.mojo-institut.de`) && Path(`/health`)"
-      - "traefik.http.routers.admin-platform-health-dev.entrypoints=websecure"
-      - "traefik.http.routers.admin-platform-health-dev.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.admin-platform-health-dev.priority=100"
-      - "traefik.http.routers.admin-platform-health-dev.service=admin-platform-api"
+      # STAGING Health Route
+      - "traefik.http.routers.admin-platform-health-staging.rule=Host(`admin.staging.mojo-institut.de`) && Path(`/health`)"
+      - "traefik.http.routers.admin-platform-health-staging.entrypoints=websecure"
+      - "traefik.http.routers.admin-platform-health-staging.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.admin-platform-health-staging.middlewares=staging-basicauth@file,staging-headers@file"
+      - "traefik.http.routers.admin-platform-health-staging.priority=100"
+      - "traefik.http.routers.admin-platform-health-staging.service=admin-platform-api"
     healthcheck:
       test: ["CMD-SHELL", "node -e \"require('http').get('http://localhost:3001/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))\""]
       interval: 30s
@@ -87,13 +89,13 @@ services:
       context: .
       dockerfile: apps/web/Dockerfile
       args:
-        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-https://dev.admin.mojo-institut.de}
+        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-https://admin.staging.mojo-institut.de/api}
         - NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_bWVhc3VyZWQtYmVkYnVnLTE5LmNsZXJrLmFjY291bnRzLmRldiQ
     container_name: admin-mojo-web
     environment:
       NODE_ENV: ${NODE_ENV:-production}
       PORT: 3000
-      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://dev.admin.mojo-institut.de}
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://admin.staging.mojo-institut.de/api}
       NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_bWVhc3VyZWQtYmVkYnVnLTE5LmNsZXJrLmFjY291bnRzLmRldiQ
       CLERK_SECRET_KEY: sk_test_yvQzIvRm8z9VMJvubKLWt5QjLbdaXmwKNJ8AoS4toa
     depends_on:
@@ -119,12 +121,13 @@ services:
       - "traefik.http.routers.admin-platform-web.priority=1"
       - "traefik.http.routers.admin-platform-web.service=admin-platform-web"
       
-      # DEVELOPMENT Route: dev.admin.mojo-institut.de
-      - "traefik.http.routers.admin-platform-web-dev.rule=Host(`dev.admin.mojo-institut.de`)"
-      - "traefik.http.routers.admin-platform-web-dev.entrypoints=websecure"
-      - "traefik.http.routers.admin-platform-web-dev.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.admin-platform-web-dev.priority=1"
-      - "traefik.http.routers.admin-platform-web-dev.service=admin-platform-web"
+      # STAGING Route: admin.staging.mojo-institut.de
+      - "traefik.http.routers.admin-platform-web-staging.rule=Host(`admin.staging.mojo-institut.de`)"
+      - "traefik.http.routers.admin-platform-web-staging.entrypoints=websecure"
+      - "traefik.http.routers.admin-platform-web-staging.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.admin-platform-web-staging.middlewares=staging-basicauth@file,staging-headers@file"
+      - "traefik.http.routers.admin-platform-web-staging.priority=1"
+      - "traefik.http.routers.admin-platform-web-staging.service=admin-platform-web"
     healthcheck:
       test: ["CMD-SHELL", "node -e \"require('http').get('http://localhost:3000/dashboard', (r) => process.exit(r.statusCode >= 200 && r.statusCode < 400 ? 0 : 1)).on('error', () => process.exit(1))\""]
       interval: 30s

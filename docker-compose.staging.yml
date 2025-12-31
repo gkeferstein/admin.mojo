@@ -1,0 +1,115 @@
+# Docker Compose - Staging Environment
+# 
+# Domain: admin.staging.mojo-institut.de
+# Basic Auth: Aktiviert (staging-basicauth Middleware)
+# Strategy: Blue/Green Deployment
+
+version: '3.8'
+
+services:
+  # ============================================
+  # API/Backend Service
+  # ============================================
+  api:
+    image: ghcr.io/gkeferstein/admin.mojo-api:${VERSION:-main-latest}
+    container_name: admin-api-staging
+    environment:
+      - NODE_ENV=staging
+      - PORT=3001
+      - DATABASE_URL=${DATABASE_URL}
+      - CLERK_SECRET_KEY=${CLERK_SECRET_KEY}
+      - PAYMENTS_API_URL=${PAYMENTS_API_URL:-https://payments.staging.mojo-institut.de/api/v1}
+      - PAYMENTS_API_KEY=${PAYMENTS_API_KEY}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+    expose:
+      - "3001"
+    networks:
+      - mojo-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://127.0.0.1:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=mojo-network"
+      
+      # Staging API Route: admin.staging.mojo-institut.de/api
+      - "traefik.http.routers.admin-api-staging-api.rule=Host(`admin.staging.mojo-institut.de`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.admin-api-staging-api.entrypoints=websecure"
+      - "traefik.http.routers.admin-api-staging-api.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.admin-api-staging-api.middlewares=staging-basicauth@file,staging-headers@file"
+      - "traefik.http.routers.admin-api-staging-api.service=admin-api-staging-api"
+      - "traefik.http.routers.admin-api-staging-api.priority=10"
+      
+      # Staging Health Route: admin.staging.mojo-institut.de/health
+      - "traefik.http.routers.admin-api-staging-health.rule=Host(`admin.staging.mojo-institut.de`) && Path(`/health`)"
+      - "traefik.http.routers.admin-api-staging-health.entrypoints=websecure"
+      - "traefik.http.routers.admin-api-staging-health.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.admin-api-staging-health.middlewares=staging-basicauth@file,staging-headers@file"
+      - "traefik.http.routers.admin-api-staging-health.service=admin-api-staging-api"
+      - "traefik.http.routers.admin-api-staging-health.priority=20"
+      
+      # Service Definition
+      - "traefik.http.services.admin-api-staging-api.loadbalancer.server.port=3001"
+
+  # ============================================
+  # Web Frontend Service
+  # ============================================
+  web:
+    image: ghcr.io/gkeferstein/admin.mojo-web:${VERSION:-main-latest}
+    container_name: admin-web-staging
+    environment:
+      - NODE_ENV=staging
+      - PORT=3000
+      - NEXT_PUBLIC_API_URL=https://admin.staging.mojo-institut.de/api
+      - NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
+      - CLERK_SECRET_KEY=${CLERK_SECRET_KEY}
+    expose:
+      - "3000"
+    depends_on:
+      - api
+    networks:
+      - mojo-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://127.0.0.1:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=mojo-network"
+      
+      # Clerk Auth Routes (without Basic Auth to prevent loops) - HIGHEST PRIORITY
+      # WICHTIG: Clerk-Routen müssen von Basic Auth ausgeschlossen werden, um Auth-Loops zu vermeiden
+      - "traefik.http.routers.admin-web-staging-clerk.rule=Host(`admin.staging.mojo-institut.de`) && (PathPrefix(`/sign-in`) || PathPrefix(`/sign-up`) || PathPrefix(`/api/webhook`) || PathPrefix(`/api/clerk`))"
+      - "traefik.http.routers.admin-web-staging-clerk.entrypoints=websecure"
+      - "traefik.http.routers.admin-web-staging-clerk.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.admin-web-staging-clerk.middlewares=staging-headers@file"
+      - "traefik.http.routers.admin-web-staging-clerk.service=admin-web-staging-frontend"
+      - "traefik.http.routers.admin-web-staging-clerk.priority=20"
+      
+      # Staging Frontend Route: admin.staging.mojo-institut.de (exclude /api, /health, and Clerk routes)
+      # Basic Auth aktiviert (gemäß Konvention) - Clerk-Routen explizit ausgeschlossen
+      - "traefik.http.routers.admin-web-staging-frontend.rule=Host(`admin.staging.mojo-institut.de`) && !PathPrefix(`/api`) && !Path(`/health`) && !PathPrefix(`/sign-in`) && !PathPrefix(`/sign-up`) && !PathPrefix(`/api/webhook`) && !PathPrefix(`/api/clerk`)"
+      - "traefik.http.routers.admin-web-staging-frontend.entrypoints=websecure"
+      - "traefik.http.routers.admin-web-staging-frontend.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.admin-web-staging-frontend.middlewares=staging-basicauth@file,staging-headers@file"
+      - "traefik.http.routers.admin-web-staging-frontend.service=admin-web-staging-frontend"
+      - "traefik.http.routers.admin-web-staging-frontend.priority=1"
+      
+      # Service Definition
+      - "traefik.http.services.admin-web-staging-frontend.loadbalancer.server.port=3000"
+
+# ============================================
+# Networks
+# ============================================
+networks:
+  mojo-network:
+    name: mojo-network
+    external: true
+

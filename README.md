@@ -185,13 +185,76 @@ ACCOUNTS_API_URL=http://localhost:3002
 - Customer-Daten (billing_country) für DACH-Erkennung
 - Customer Attribution wird hier gespeichert
 
+## Deployment
+
+### CI/CD Pipeline
+
+Das Projekt verwendet einheitliche CI/CD Workflows für Staging und Production:
+
+- **Staging Deployment** (`.github/workflows/ci-staging.yml`)
+  - Trigger: Push zu `main` Branch
+  - Domain: `admin.staging.mojo-institut.de`
+  - Strategy: Blue/Green Deployment
+  - Basic Auth: Aktiviert (Plattform-Level)
+
+- **Production Deployment** (`.github/workflows/ci-release.yml`)
+  - Trigger: Release Tag (`v*.*.*`)
+  - Domain: `admin.mojo-institut.de`
+  - Strategy: Blue/Green Deployment
+  - Image Strategy: Build Once, Deploy Many (gleiche Images wie Staging)
+
+### Docker Compose
+
+- `docker-compose.yml` - Lokale Entwicklung
+- `docker-compose.staging.yml` - Staging Environment
+- `docker-compose.production.yml` - Production Environment
+
+### Health Check
+
+Alle Services implementieren einen `/health` Endpoint:
+
+- **API**: `GET /health` - Fastify API Health Check
+- **Web**: `GET /health` - Next.js App Health Check
+
+Response Format:
+```json
+{
+  "status": "ok",
+  "service": "admin.mojo-api|admin.mojo-web",
+  "version": "1.0.0",
+  "timestamp": "2025-12-29T12:00:00.000Z"
+}
+```
+
+### Domain-Konvention
+
+- **Staging**: `admin.staging.mojo-institut.de`
+- **Production**: `admin.mojo-institut.de`
+
+### GitHub Secrets
+
+**Staging:**
+- `STAGING_SERVER` - Hostname/IP des Staging Servers
+- `STAGING_SSH_KEY` - SSH Private Key für Staging
+
+**Production:**
+- `PRODUCTION_SERVER` - Hostname/IP des Production Servers
+- `PRODUCTION_SSH_KEY` - SSH Private Key für Production
+
+**Shared:**
+- `GHCR_TOKEN` - GitHub Container Registry Token
+- `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` - Clerk Public Key
+
 ## Traefik Labels
+
+Das Projekt verwendet Traefik für Routing:
 
 ```yaml
 labels:
   - "traefik.enable=true"
-  - "traefik.http.routers.admin-web.rule=Host(`admin.mojo.localhost`)"
-  - "traefik.http.routers.admin-api.rule=Host(`api.admin.mojo.localhost`)"
+  - "traefik.docker.network=mojo-network"
+  - "traefik.http.routers.admin-api.rule=Host(`admin.mojo-institut.de`) && PathPrefix(`/api`)"
+  - "traefik.http.routers.admin-web.rule=Host(`admin.mojo-institut.de`)"
 ```
 
 ## License

@@ -1,0 +1,115 @@
+# Docker Compose - Production Environment
+# 
+# Domain: admin.mojo-institut.de
+# Basic Auth: Deaktiviert (nur Clerk auf App-Level)
+# Strategy: Blue/Green Deployment
+
+version: '3.8'
+
+services:
+  # ============================================
+  # API/Backend Service
+  # ============================================
+  api:
+    image: ghcr.io/gkeferstein/admin.mojo-api:${VERSION:-latest}
+    container_name: admin-api-prod
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - DATABASE_URL=${DATABASE_URL}
+      - CLERK_SECRET_KEY=${CLERK_SECRET_KEY}
+      - PAYMENTS_API_URL=${PAYMENTS_API_URL:-https://payments.mojo-institut.de/api/v1}
+      - PAYMENTS_API_KEY=${PAYMENTS_API_KEY}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+    expose:
+      - "3001"
+    networks:
+      - mojo-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://127.0.0.1:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=mojo-network"
+      
+      # Production API Route: admin.mojo-institut.de/api
+      - "traefik.http.routers.admin-api-prod-api.rule=Host(`admin.mojo-institut.de`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.admin-api-prod-api.entrypoints=websecure"
+      - "traefik.http.routers.admin-api-prod-api.tls.certresolver=letsencrypt"
+      # KEINE Basic Auth Middleware für Production
+      - "traefik.http.routers.admin-api-prod-api.service=admin-api-prod-api"
+      - "traefik.http.routers.admin-api-prod-api.priority=10"
+      
+      # Production Health Route: admin.mojo-institut.de/health
+      - "traefik.http.routers.admin-api-prod-health.rule=Host(`admin.mojo-institut.de`) && Path(`/health`)"
+      - "traefik.http.routers.admin-api-prod-health.entrypoints=websecure"
+      - "traefik.http.routers.admin-api-prod-health.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.admin-api-prod-health.service=admin-api-prod-api"
+      - "traefik.http.routers.admin-api-prod-health.priority=20"
+      
+      # Service Definition
+      - "traefik.http.services.admin-api-prod-api.loadbalancer.server.port=3001"
+
+  # ============================================
+  # Web Frontend Service
+  # ============================================
+  web:
+    image: ghcr.io/gkeferstein/admin.mojo-web:${VERSION:-latest}
+    container_name: admin-web-prod
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - NEXT_PUBLIC_API_URL=https://admin.mojo-institut.de/api
+      - NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
+      - CLERK_SECRET_KEY=${CLERK_SECRET_KEY}
+    expose:
+      - "3000"
+    depends_on:
+      - api
+    networks:
+      - mojo-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://127.0.0.1:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=mojo-network"
+      
+      # Production Frontend Route: admin.mojo-institut.de (exclude /api and /health)
+      - "traefik.http.routers.admin-web-prod-frontend.rule=Host(`admin.mojo-institut.de`) && !PathPrefix(`/api`) && !Path(`/health`)"
+      - "traefik.http.routers.admin-web-prod-frontend.entrypoints=websecure"
+      - "traefik.http.routers.admin-web-prod-frontend.tls.certresolver=letsencrypt"
+      # KEINE Basic Auth Middleware für Production
+      - "traefik.http.routers.admin-web-prod-frontend.service=admin-web-prod-frontend"
+      - "traefik.http.routers.admin-web-prod-frontend.priority=1"
+      
+      # Service Definition
+      - "traefik.http.services.admin-web-prod-frontend.loadbalancer.server.port=3000"
+
+# ============================================
+# Networks
+# ============================================
+networks:
+  mojo-network:
+    name: mojo-network
+    external: true
+
+# ============================================
+# Blue/Green Deployment Notes
+# ============================================
+# 
+# Für Blue/Green Deployment:
+# 1. Verwende Container-Namen-Suffix: -blue oder -green
+# 2. Beispiel: admin-api-prod-blue, admin-api-prod-green
+# 3. Traefik Router zeigt auf aktive Umgebung (Blue oder Green)
+# 4. Switch erfolgt durch Router-Update (nicht durch Container-Namen-Änderung)
+# 5. Siehe deploy-blue-green.sh Script für vollständigen Prozess
+
