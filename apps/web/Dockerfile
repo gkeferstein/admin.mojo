@@ -10,6 +10,10 @@ RUN npm install -g pnpm
 COPY package.json pnpm-lock.yaml* pnpm-workspace.yaml ./
 COPY apps/web/package.json ./apps/web/
 
+# Copy .npmrc for GitHub Packages authentication (created in CI before build)
+COPY .npmrc .npmrc
+COPY .npmrc /root/.npmrc
+
 # Install dependencies
 RUN pnpm install --frozen-lockfile
 
