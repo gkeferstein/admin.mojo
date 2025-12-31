@@ -301,7 +301,7 @@ jobs:
       - name: Wait for Deployment
         run: |
           echo "⏳ Warte auf Deployment-Initialisierung..."
-          sleep 30
+          sleep 60
 
       - name: Health Check
         run: |
