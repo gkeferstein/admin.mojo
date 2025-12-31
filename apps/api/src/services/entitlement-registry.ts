@@ -246,3 +246,6 @@ class EntitlementRegistryService {
 // Export singleton instance
 export const entitlementRegistry = new EntitlementRegistryService();
 
+
+
+

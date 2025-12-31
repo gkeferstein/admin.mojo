@@ -1,10 +1,8 @@
-import Fastify from 'fastify';
+import Fastify, { FastifyRequest, FastifyReply } from 'fastify';
 import cors from '@fastify/cors';
-import { logger } from './lib/logger.js';
-import { env } from './lib/env.js';
-
-// Routes
-import regionalAgreementsRoutes from './routes/regional-agreements.js';
+import { logger } from './lib/logger';
+import { env } from './lib/env';
+import regionalAgreementsRoutes from './routes/regional-agreements';
 import platformProductsRoutes from './routes/platform-products.js';
 import customerAttributionsRoutes from './routes/customer-attributions.js';
 import commissionsRoutes from './routes/commissions.js';
@@ -59,12 +57,18 @@ await fastify.register(auditRoutes);
 await fastify.register(entitlementRegistryRoutes);
 
 // Error handler
-fastify.setErrorHandler((error, request, reply) => {
+fastify.setErrorHandler((error: unknown, request: FastifyRequest, reply: FastifyReply) => {
   logger.error({ err: error, url: request.url }, 'Request error');
   
   // Zod validation errors
-  if (error.name === 'ZodError') {
-    const zodError = error as unknown as { issues: unknown[] };
+  if (
+    typeof error === 'object' &&
+    error !== null &&
+    'name' in error &&
+    error.name === 'ZodError' &&
+    'issues' in error
+  ) {
+    const zodError = error as { issues: unknown[] };
     return reply.status(400).send({
       success: false,
       error: {
@@ -74,9 +78,14 @@ fastify.setErrorHandler((error, request, reply) => {
       },
     });
   }
-  
+
   // Prisma errors
-  if (error.name === 'PrismaClientKnownRequestError') {
+  if (
+    typeof error === 'object' &&
+    error !== null &&
+    'name' in error &&
+    error.name === 'PrismaClientKnownRequestError'
+  ) {
     return reply.status(400).send({
       success: false,
       error: {
@@ -87,11 +96,12 @@ fastify.setErrorHandler((error, request, reply) => {
   }
   
   // Default error
+  const errorMessage = error instanceof Error ? error.message : String(error);
   return reply.status(500).send({
     success: false,
     error: {
       code: 'INTERNAL_ERROR',
-      message: env.NODE_ENV === 'production' ? 'Internal server error' : error.message,
+      message: env.NODE_ENV === 'production' ? 'Internal server error' : errorMessage,
     },
   });
 });

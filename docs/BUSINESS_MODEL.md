@@ -567,3 +567,6 @@ A: Cookie (30 Tage) → Bei Account-Erstellung permanent gespeichert.
 
 *MOJO Institut – System für chronische Gesundheit*
 
+
+
+

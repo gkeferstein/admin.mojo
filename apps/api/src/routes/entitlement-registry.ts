@@ -131,3 +131,6 @@ export default async function entitlementRegistryRoutes(fastify: FastifyInstance
   });
 }
 
+
+
+

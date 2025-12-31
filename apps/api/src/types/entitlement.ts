@@ -81,3 +81,6 @@ export interface EntitlementRegistry {
   byResourceType: Map<ResourceType, EntitlementDefinition[]>;
 }
 
+
+
+
