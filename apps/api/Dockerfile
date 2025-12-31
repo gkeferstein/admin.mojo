@@ -14,6 +14,7 @@ COPY package.json pnpm-lock.yaml* pnpm-workspace.yaml ./
 COPY apps/api/package.json ./apps/api/
 
 # Copy .npmrc for GitHub Packages authentication (created in CI before build)
+# Kopiere in beide Verzeichnisse: /app (Projekt) und /root (User)
 COPY .npmrc .npmrc
 COPY .npmrc /root/.npmrc
 
