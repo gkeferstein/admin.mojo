@@ -34,8 +34,8 @@ RUN pnpm build
 # Production Stage
 FROM node:20-slim AS runner
 
-# Install OpenSSL for Prisma
-RUN apt-get update && apt-get install -y openssl libssl-dev ca-certificates && rm -rf /var/lib/apt/lists/*
+# Install OpenSSL for Prisma and wget for health checks
+RUN apt-get update && apt-get install -y openssl libssl-dev ca-certificates wget && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app/apps/api
 
