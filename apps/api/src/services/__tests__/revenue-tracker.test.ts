@@ -18,6 +18,7 @@ vi.mock('../../lib/prisma.js', () => ({
     regionalPayout: {
       create: vi.fn(),
       findMany: vi.fn(),
+      findUnique: vi.fn(),
       update: vi.fn(),
     },
   },
