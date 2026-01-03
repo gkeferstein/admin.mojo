@@ -8,6 +8,7 @@ vi.mock('../../lib/prisma.js', () => ({
   default: {
     regionalAgreement: {
       findFirst: vi.fn(),
+      findMany: vi.fn(),
     },
     revenueRecord: {
       create: vi.fn(),
