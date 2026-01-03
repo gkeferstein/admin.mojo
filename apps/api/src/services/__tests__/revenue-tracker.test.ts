@@ -22,6 +22,9 @@ vi.mock('../../lib/prisma.js', () => ({
       findUnique: vi.fn(),
       update: vi.fn(),
     },
+    $queryRaw: vi.fn(),
+    $connect: vi.fn(),
+    $disconnect: vi.fn(),
   },
 }));
 
