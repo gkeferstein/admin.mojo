@@ -110,8 +110,8 @@ export default async function regionalPartnersRoutes(fastify: FastifyInstance) {
     const { id } = request.params as { id: string };
     const query = request.query as {
       period?: string;
-      type?: 'MEMBERSHIP' | 'TRANSACTION';
-      status?: 'PENDING' | 'APPROVED' | 'PAID' | 'CANCELLED';
+      type?: RevenueType;
+      status?: RevenuePayoutStatus;
       limit?: string;
       offset?: string;
     };
