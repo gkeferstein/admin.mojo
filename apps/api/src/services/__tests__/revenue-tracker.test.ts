@@ -190,6 +190,7 @@ describe('RevenueTracker', () => {
           revenueCount: 2,
           membershipCount: 1,
           transactionCount: 1,
+          status: RegionalPayoutStatus.PENDING,
         }),
       });
     });
