@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { Decimal } from '@prisma/client/runtime/library';
+import { RevenueType, RevenuePayoutStatus, PayoutStatus } from '@prisma/client';
 import prisma from '../../lib/prisma.js';
 import { revenueTracker } from '../../services/revenue-tracker.js';
 
@@ -54,12 +55,12 @@ describe('Regional Partners Routes', () => {
       const mockRevenues = [
         {
           id: 'revenue-1',
-          type: 'MEMBERSHIP',
+          type: RevenueType.MEMBERSHIP,
           regionalPartnerProvision: new Decimal(8.7),
         },
         {
           id: 'revenue-2',
-          type: 'TRANSACTION',
+          type: RevenueType.TRANSACTION,
           regionalPartnerProvision: new Decimal(1.32),
         },
       ];
@@ -85,13 +86,13 @@ describe('Regional Partners Routes', () => {
       const mockRevenues = [
         {
           id: 'revenue-1',
-          type: 'MEMBERSHIP',
+          type: RevenueType.MEMBERSHIP,
           amount: new Decimal(29),
           currency: 'EUR',
           regionalPartnerProvision: new Decimal(8.7),
           paymentDate: new Date('2025-01-15'),
           payoutPeriod: '2025-01',
-          payoutStatus: 'PENDING',
+          payoutStatus: RevenuePayoutStatus.PENDING,
           membershipType: 'LEBENSENERGIE',
           transactionType: null,
           metadata: {},
@@ -99,7 +100,7 @@ describe('Regional Partners Routes', () => {
       ];
 
       expect(mockRevenues).toHaveLength(1);
-      expect(mockRevenues[0].type).toBe('MEMBERSHIP');
+      expect(mockRevenues[0].type).toBe(RevenueType.MEMBERSHIP);
     });
   });
 
@@ -116,7 +117,7 @@ describe('Regional Partners Routes', () => {
           transactionProvision: new Decimal(1.32),
           membershipCount: 1,
           transactionCount: 1,
-          status: 'PAID',
+          status: PayoutStatus.COMPLETED,
           approvedAt: new Date('2025-02-01'),
           paidAt: new Date('2025-02-15'),
           paymentReference: 'REF-12345',
@@ -126,7 +127,7 @@ describe('Regional Partners Routes', () => {
 
       expect(mockPayouts).toHaveLength(1);
       expect(mockPayouts[0].payoutPeriod).toBe('2025-01');
-      expect(mockPayouts[0].status).toBe('PAID');
+      expect(mockPayouts[0].status).toBe(PayoutStatus.COMPLETED);
     });
   });
 });

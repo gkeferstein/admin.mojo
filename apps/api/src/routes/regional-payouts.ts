@@ -220,7 +220,7 @@ export default async function regionalPayoutsRoutes(fastify: FastifyInstance) {
       action: 'approve',
       resource: 'regional_payout',
       resourceId: id,
-      newValue: { status: 'APPROVED', approved_by: input.approved_by },
+      newValue: { status: PayoutStatus.PROCESSING, approved_by: input.approved_by },
       request,
     });
     

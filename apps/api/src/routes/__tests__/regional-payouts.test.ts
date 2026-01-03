@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { Decimal } from '@prisma/client/runtime/library';
+import { RevenueType, RevenuePayoutStatus, PayoutStatus } from '@prisma/client';
 import prisma from '../../lib/prisma.js';
 import { revenueTracker } from '../../services/revenue-tracker.js';
 
@@ -70,7 +71,7 @@ describe('Regional Payouts Routes', () => {
           transactionProvision: new Decimal(1.32),
           membershipCount: 1,
           transactionCount: 1,
-          status: 'PAID',
+          status: PayoutStatus.COMPLETED,
           approvedAt: new Date('2025-02-01'),
           paidAt: new Date('2025-02-15'),
           paymentReference: 'REF-12345',
@@ -80,7 +81,7 @@ describe('Regional Payouts Routes', () => {
       ];
 
       expect(mockPayouts).toHaveLength(1);
-      expect(mockPayouts[0].status).toBe('PAID');
+      expect(mockPayouts[0].status).toBe(PayoutStatus.COMPLETED);
     });
   });
 
@@ -111,7 +112,7 @@ describe('Regional Payouts Routes', () => {
         revenueRecords: [
           {
             id: 'revenue-1',
-            type: 'MEMBERSHIP',
+            type: RevenueType.MEMBERSHIP,
             amount: new Decimal(29),
             currency: 'EUR',
             regionalPartnerProvision: new Decimal(8.7),
@@ -131,10 +132,10 @@ describe('Regional Payouts Routes', () => {
     it('should approve a pending payout', () => {
       const mockPayout = {
         id: 'payout-1',
-        status: 'PENDING',
+        status: PayoutStatus.PENDING,
       };
 
-      expect(mockPayout.status).toBe('PENDING');
+      expect(mockPayout.status).toBe(PayoutStatus.PENDING);
     });
   });
 

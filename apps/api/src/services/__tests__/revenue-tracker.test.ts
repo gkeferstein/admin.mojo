@@ -217,7 +217,7 @@ describe('RevenueTracker', () => {
     it('should mark payout and revenue records as paid', async () => {
       (prisma.regionalPayout.update as any).mockResolvedValue({
         id: 'payout-1',
-        status: 'PAID',
+        status: PayoutStatus.COMPLETED,
       });
       (prisma.revenueRecord.updateMany as any).mockResolvedValue({ count: 5 });
 
