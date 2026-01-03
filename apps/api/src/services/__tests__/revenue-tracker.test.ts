@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { revenueTracker } from '../revenue-tracker.js';
 import prisma from '../../lib/prisma.js';
 import { Decimal } from '@prisma/client/runtime/library';
+import { RevenueType, RevenuePayoutStatus, PayoutStatus } from '@prisma/client';
 
 // Mock Prisma
 vi.mock('../../lib/prisma.js', () => ({
@@ -80,13 +81,13 @@ describe('RevenueTracker', () => {
       expect(result).toBe('revenue-1');
       expect(prisma.revenueRecord.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
-          type: 'MEMBERSHIP',
+          type: RevenueType.MEMBERSHIP,
           amount: expect.any(Decimal),
           regionalPartnerProvision: expect.any(Decimal),
           platformOwnerAmount: expect.any(Decimal),
           membershipType: 'LEBENSENERGIE',
           payoutPeriod: '2025-01',
-          payoutStatus: 'PENDING',
+          payoutStatus: RevenuePayoutStatus.PENDING,
         }),
       });
     });
@@ -133,14 +134,14 @@ describe('RevenueTracker', () => {
       expect(result).toBe('revenue-2');
       expect(prisma.revenueRecord.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
-          type: 'TRANSACTION',
+          type: RevenueType.TRANSACTION,
           amount: expect.any(Decimal),
           transactionFee: expect.any(Decimal),
           regionalPartnerProvision: expect.any(Decimal),
           platformOwnerAmount: expect.any(Decimal),
           transactionType: 'EVENT_BOOKING',
           payoutPeriod: '2025-01',
-          payoutStatus: 'PENDING',
+          payoutStatus: RevenuePayoutStatus.PENDING,
         }),
       });
     });
@@ -226,7 +227,7 @@ describe('RevenueTracker', () => {
       expect(prisma.regionalPayout.update).toHaveBeenCalledWith({
         where: { id: 'payout-1' },
         data: {
-          status: 'PAID',
+          status: PayoutStatus.COMPLETED,
           paidAt,
           paymentReference: 'REF-12345',
         },
@@ -235,7 +236,7 @@ describe('RevenueTracker', () => {
       expect(prisma.revenueRecord.updateMany).toHaveBeenCalledWith({
         where: { payoutId: 'payout-1' },
         data: {
-          payoutStatus: 'PAID',
+          payoutStatus: RevenuePayoutStatus.PAID,
           payoutDate: paidAt,
           payoutReference: 'REF-12345',
         },
