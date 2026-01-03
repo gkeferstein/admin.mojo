@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { revenueTracker } from '../revenue-tracker.js';
 import prisma from '../../lib/prisma.js';
 import { Decimal } from '@prisma/client/runtime/library';
-import { RevenueType, RevenuePayoutStatus, RegionalPayoutStatus } from '@prisma/client';
+import { RevenueType, RevenuePayoutStatus, RegionalPayoutStatus, MembershipType, TransactionType } from '@prisma/client';
 
 // Mock Prisma
 vi.mock('../../lib/prisma.js', () => ({
@@ -126,7 +126,7 @@ describe('RevenueTracker', () => {
         currency: 'EUR',
         paymentDate: new Date('2025-01-15'),
         tenantId: 'tenant-1',
-        transactionType: 'EVENT_BOOKING',
+          transactionType: TransactionType.EVENT_BOOKING,
         regionId: 'region-1',
         regionalPartnerId: 'tenant-dach',
       });
@@ -139,7 +139,7 @@ describe('RevenueTracker', () => {
           transactionFee: expect.any(Decimal),
           regionalPartnerProvision: expect.any(Decimal),
           platformOwnerAmount: expect.any(Decimal),
-          transactionType: 'EVENT_BOOKING',
+          transactionType: TransactionType.EVENT_BOOKING,
           payoutPeriod: '2025-01',
           payoutStatus: RevenuePayoutStatus.PENDING,
         }),

@@ -1,6 +1,6 @@
 import prisma from '../lib/prisma.js';
 import { Decimal } from '@prisma/client/runtime/library';
-import { RevenueType, RevenuePayoutStatus, RegionalPayoutStatus, AgreementStatus } from '@prisma/client';
+import { RevenueType, RevenuePayoutStatus, RegionalPayoutStatus, AgreementStatus, MembershipType, TransactionType } from '@prisma/client';
 
 // ==============================================
 // Constants
@@ -23,7 +23,7 @@ export interface MembershipRevenueInput {
   currency: string;
   paymentDate: Date;
   userId: string; // Clerk User ID
-  membershipType: 'LEBENSENERGIE' | 'RESILIENZ' | 'BUSINESS_BOOTCAMP' | 'REGENERATIONSMEDIZIN_OS';
+  membershipType: MembershipType;
   billingCountry: string; // ISO 3166-1 Alpha-2 (e.g., 'DE')
   metadata?: Record<string, any>;
 }
@@ -34,7 +34,7 @@ export interface TransactionRevenueInput {
   currency: string;
   paymentDate: Date;
   tenantId: string; // B2B Tenant ID
-  transactionType: 'EVENT_BOOKING' | 'MENTORING' | 'WORKSHOP';
+  transactionType: TransactionType;
   regionId: string; // Region ID (from tenant)
   regionalPartnerId: string; // Regional Partner Tenant ID
   metadata?: Record<string, any>;
