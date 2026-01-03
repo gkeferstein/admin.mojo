@@ -1,6 +1,7 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { z } from 'zod';
 import { Decimal } from '@prisma/client/runtime/library';
+import { RevenueType, RevenuePayoutStatus, PayoutStatus } from '@prisma/client';
 import prisma from '../lib/prisma.js';
 import { revenueTracker } from '../services/revenue-tracker.js';
 
@@ -46,7 +47,7 @@ export default async function regionalPartnersRoutes(fastify: FastifyInstance) {
     const lastPayout = await prisma.regionalPayout.findFirst({
       where: {
         regionalPartnerId: id,
-        status: 'PAID',
+        status: PayoutStatus.COMPLETED,
       },
       orderBy: { payoutPeriod: 'desc' },
     });
@@ -57,8 +58,8 @@ export default async function regionalPartnersRoutes(fastify: FastifyInstance) {
       new Decimal(0)
     );
     
-    const membershipRevenues = currentRevenues.filter(r => r.type === 'MEMBERSHIP');
-    const transactionRevenues = currentRevenues.filter(r => r.type === 'TRANSACTION');
+    const membershipRevenues = currentRevenues.filter(r => r.type === RevenueType.MEMBERSHIP);
+    const transactionRevenues = currentRevenues.filter(r => r.type === RevenueType.TRANSACTION);
     
     const membershipProvision = membershipRevenues.reduce(
       (sum, r) => sum.plus(r.regionalPartnerProvision),

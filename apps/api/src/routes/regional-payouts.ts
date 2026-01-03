@@ -1,5 +1,6 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { z } from 'zod';
+import { PayoutStatus, RevenuePayoutStatus } from '@prisma/client';
 import prisma from '../lib/prisma.js';
 import { revenueTracker } from '../services/revenue-tracker.js';
 import { logAudit } from '../services/audit.js';
@@ -199,7 +200,7 @@ export default async function regionalPayoutsRoutes(fastify: FastifyInstance) {
       });
     }
     
-    if (payout.status !== 'PENDING') {
+    if (payout.status !== PayoutStatus.PENDING) {
       return reply.status(400).send({
         success: false,
         error: { code: 'INVALID_STATUS', message: `Payout is ${payout.status}, expected PENDING` },
@@ -209,7 +210,7 @@ export default async function regionalPayoutsRoutes(fastify: FastifyInstance) {
     const updated = await prisma.regionalPayout.update({
       where: { id },
       data: {
-        status: 'APPROVED',
+        status: PayoutStatus.PROCESSING,
         approvedAt: new Date(),
         approvedBy: input.approved_by,
       },
