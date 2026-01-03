@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { revenueTracker } from '../revenue-tracker.js';
 import prisma from '../../lib/prisma.js';
 import { Decimal } from '@prisma/client/runtime/library';
-import { RevenueType, RevenuePayoutStatus, RegionalPayoutStatus, MembershipType, TransactionType } from '@prisma/client';
+import { RevenueType, RevenuePayoutStatus, RegionalPayoutStatus, MembershipType, TransactionType, AgreementStatus } from '@prisma/client';
 
 // Mock Prisma
 vi.mock('../../lib/prisma.js', () => ({
@@ -56,7 +56,9 @@ describe('RevenueTracker', () => {
         tenantName: 'MOJO GmbH',
         regionCodes: ['DE', 'AT', 'CH'],
         regionName: 'DACH',
-        status: 'ACTIVE', // Mock data - AgreementStatus enum not needed here
+        status: AgreementStatus.ACTIVE,
+        validFrom: new Date('2024-01-01'),
+        validUntil: null,
       };
 
       (prisma.regionalAgreement.findFirst as any).mockResolvedValue(mockAgreement);
