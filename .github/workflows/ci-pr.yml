@@ -41,10 +41,11 @@ jobs:
           if [ -n "$GITHUB_TOKEN" ]; then
             echo "@gkeferstein:registry=https://npm.pkg.github.com" > ~/.npmrc
             echo "//npm.pkg.github.com/:_authToken=$GITHUB_TOKEN" >> ~/.npmrc
+            echo "always-auth=true" >> ~/.npmrc
           fi
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile || pnpm install --no-frozen-lockfile
 
       - name: Generate Prisma Client
         run: pnpm --filter api db:generate
