@@ -15,6 +15,8 @@ vi.mock('../../lib/prisma.js', () => ({
     },
     regionalPayout: {
       findFirst: vi.fn(),
+      findMany: vi.fn(),
+      count: vi.fn(),
     },
   },
 }));
@@ -123,7 +125,7 @@ describe('Regional Partners Routes', () => {
       ];
 
       expect(mockPayouts).toHaveLength(1);
-      expect(mockPayouts[0].period).toBe('2025-01');
+      expect(mockPayouts[0].payoutPeriod).toBe('2025-01');
       expect(mockPayouts[0].status).toBe('PAID');
     });
   });
