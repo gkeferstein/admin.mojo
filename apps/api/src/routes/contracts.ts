@@ -187,8 +187,8 @@ function renderContract(contractType: string, variables: Record<string, string> 
 
 export default async function contractsRoutes(fastify: FastifyInstance) {
   
-  // GET /api/v1/contracts/templates - Verfügbare Vertragsvorlagen
-  fastify.get('/api/v1/contracts/templates', async (request: FastifyRequest, reply: FastifyReply) => {
+  // GET /api/contracts/templates - Verfügbare Vertragsvorlagen
+  fastify.get('/api/contracts/templates', async (request: FastifyRequest, reply: FastifyReply) => {
     return {
       success: true,
       data: Object.entries(CONTRACT_TEMPLATES).map(([type, template]) => ({
@@ -200,8 +200,8 @@ export default async function contractsRoutes(fastify: FastifyInstance) {
     };
   });
 
-  // GET /api/v1/contracts/templates/:type - Einzelne Vorlage
-  fastify.get('/api/v1/contracts/templates/:type', async (request: FastifyRequest, reply: FastifyReply) => {
+  // GET /api/contracts/templates/:type - Einzelne Vorlage
+  fastify.get('/api/contracts/templates/:type', async (request: FastifyRequest, reply: FastifyReply) => {
     const { type } = request.params as { type: string };
     
     const template = CONTRACT_TEMPLATES[type as keyof typeof CONTRACT_TEMPLATES];
@@ -221,8 +221,8 @@ export default async function contractsRoutes(fastify: FastifyInstance) {
     };
   });
 
-  // GET /api/v1/contracts/render/:type - Vertrag rendern (Preview)
-  fastify.get('/api/v1/contracts/render/:type', async (request: FastifyRequest, reply: FastifyReply) => {
+  // GET /api/contracts/render/:type - Vertrag rendern (Preview)
+  fastify.get('/api/contracts/render/:type', async (request: FastifyRequest, reply: FastifyReply) => {
     const { type } = request.params as { type: string };
     const variables = request.query as Record<string, string>;
     
@@ -244,8 +244,8 @@ export default async function contractsRoutes(fastify: FastifyInstance) {
     }
   });
 
-  // POST /api/v1/contracts/sign - Vertrag unterzeichnen
-  fastify.post('/api/v1/contracts/sign', async (request: FastifyRequest, reply: FastifyReply) => {
+  // POST /api/contracts/sign - Vertrag unterzeichnen
+  fastify.post('/api/contracts/sign', async (request: FastifyRequest, reply: FastifyReply) => {
     const input = signContractSchema.parse(request.body);
     
     const template = CONTRACT_TEMPLATES[input.contractType as keyof typeof CONTRACT_TEMPLATES];
@@ -341,8 +341,8 @@ export default async function contractsRoutes(fastify: FastifyInstance) {
     });
   });
 
-  // GET /api/v1/contracts/signatures - Liste aller Signaturen
-  fastify.get('/api/v1/contracts/signatures', async (request: FastifyRequest, reply: FastifyReply) => {
+  // GET /api/contracts/signatures - Liste aller Signaturen
+  fastify.get('/api/contracts/signatures', async (request: FastifyRequest, reply: FastifyReply) => {
     const { tenantId, contractType, limit = '50', offset = '0' } = request.query as {
       tenantId?: string;
       contractType?: string;
@@ -375,8 +375,8 @@ export default async function contractsRoutes(fastify: FastifyInstance) {
     };
   });
 
-  // GET /api/v1/contracts/signatures/:id - Einzelne Signatur
-  fastify.get('/api/v1/contracts/signatures/:id', async (request: FastifyRequest, reply: FastifyReply) => {
+  // GET /api/contracts/signatures/:id - Einzelne Signatur
+  fastify.get('/api/contracts/signatures/:id', async (request: FastifyRequest, reply: FastifyReply) => {
     const { id } = request.params as { id: string };
     
     const signature = await prisma.contractSignature.findUnique({
@@ -393,8 +393,8 @@ export default async function contractsRoutes(fastify: FastifyInstance) {
     return { success: true, data: signature };
   });
 
-  // GET /api/v1/contracts/verify/:tenantId/:type - Vertragsstatus prüfen
-  fastify.get('/api/v1/contracts/verify/:tenantId/:type', async (request: FastifyRequest, reply: FastifyReply) => {
+  // GET /api/contracts/verify/:tenantId/:type - Vertragsstatus prüfen
+  fastify.get('/api/contracts/verify/:tenantId/:type', async (request: FastifyRequest, reply: FastifyReply) => {
     const { tenantId, type } = request.params as { tenantId: string; type: string };
     
     const signature = await prisma.contractSignature.findFirst({

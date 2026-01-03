@@ -37,8 +37,8 @@ const querySchema = z.object({
 
 export default async function commissionsRoutes(fastify: FastifyInstance) {
   
-  // POST /api/v1/commissions/calculate - Provisionen berechnen (Preview)
-  fastify.post('/api/v1/commissions/calculate', async (request: FastifyRequest, reply: FastifyReply) => {
+  // POST /api/commissions/calculate - Provisionen berechnen (Preview)
+  fastify.post('/api/commissions/calculate', async (request: FastifyRequest, reply: FastifyReply) => {
     const input = calculateSchema.parse(request.body);
     
     const order: OrderInput = {
@@ -63,8 +63,8 @@ export default async function commissionsRoutes(fastify: FastifyInstance) {
     };
   });
 
-  // POST /api/v1/commissions/process - Provisionen berechnen und speichern
-  fastify.post('/api/v1/commissions/process', async (request: FastifyRequest, reply: FastifyReply) => {
+  // POST /api/commissions/process - Provisionen berechnen und speichern
+  fastify.post('/api/commissions/process', async (request: FastifyRequest, reply: FastifyReply) => {
     const input = calculateSchema.parse(request.body);
     
     // Check for duplicate order
@@ -111,8 +111,8 @@ export default async function commissionsRoutes(fastify: FastifyInstance) {
     });
   });
 
-  // GET /api/v1/commissions - Liste aller Provisionen
-  fastify.get('/api/v1/commissions', async (request: FastifyRequest, reply: FastifyReply) => {
+  // GET /api/commissions - Liste aller Provisionen
+  fastify.get('/api/commissions', async (request: FastifyRequest, reply: FastifyReply) => {
     const query = querySchema.parse(request.query);
     
     const where: any = {};
@@ -165,8 +165,8 @@ export default async function commissionsRoutes(fastify: FastifyInstance) {
     };
   });
 
-  // GET /api/v1/commissions/by-order/:orderId - Provisionen einer Order
-  fastify.get('/api/v1/commissions/by-order/:orderId', async (request: FastifyRequest, reply: FastifyReply) => {
+  // GET /api/commissions/by-order/:orderId - Provisionen einer Order
+  fastify.get('/api/commissions/by-order/:orderId', async (request: FastifyRequest, reply: FastifyReply) => {
     const { orderId } = request.params as { orderId: string };
     
     const commissions = await prisma.commission.findMany({
@@ -182,8 +182,8 @@ export default async function commissionsRoutes(fastify: FastifyInstance) {
     };
   });
 
-  // POST /api/v1/commissions/refund - Order-Provisionen stornieren
-  fastify.post('/api/v1/commissions/refund', async (request: FastifyRequest, reply: FastifyReply) => {
+  // POST /api/commissions/refund - Order-Provisionen stornieren
+  fastify.post('/api/commissions/refund', async (request: FastifyRequest, reply: FastifyReply) => {
     const input = z.object({
       orderId: z.string(),
       reason: z.string().min(1),
@@ -213,8 +213,8 @@ export default async function commissionsRoutes(fastify: FastifyInstance) {
     };
   });
 
-  // POST /api/v1/commissions/approve-eligible - Ausstehende genehmigen (Cron Job)
-  fastify.post('/api/v1/commissions/approve-eligible', async (request: FastifyRequest, reply: FastifyReply) => {
+  // POST /api/commissions/approve-eligible - Ausstehende genehmigen (Cron Job)
+  fastify.post('/api/commissions/approve-eligible', async (request: FastifyRequest, reply: FastifyReply) => {
     const count = await commissionCalculator.approveEligibleCommissions();
     
     await logAudit({
@@ -231,8 +231,8 @@ export default async function commissionsRoutes(fastify: FastifyInstance) {
     };
   });
 
-  // GET /api/v1/commissions/stats - Statistiken
-  fastify.get('/api/v1/commissions/stats', async (request: FastifyRequest, reply: FastifyReply) => {
+  // GET /api/commissions/stats - Statistiken
+  fastify.get('/api/commissions/stats', async (request: FastifyRequest, reply: FastifyReply) => {
     const { recipientTenantId, period } = request.query as { 
       recipientTenantId?: string; 
       period?: 'day' | 'week' | 'month' | 'year';
@@ -305,8 +305,8 @@ export default async function commissionsRoutes(fastify: FastifyInstance) {
     };
   });
 
-  // GET /api/v1/commissions/pending-payout - Auszahlungsreife Provisionen
-  fastify.get('/api/v1/commissions/pending-payout', async (request: FastifyRequest, reply: FastifyReply) => {
+  // GET /api/commissions/pending-payout - Auszahlungsreife Provisionen
+  fastify.get('/api/commissions/pending-payout', async (request: FastifyRequest, reply: FastifyReply) => {
     const { recipientTenantId } = request.query as { recipientTenantId?: string };
     
     const where: any = {

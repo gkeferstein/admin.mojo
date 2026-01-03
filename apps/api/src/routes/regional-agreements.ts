@@ -38,8 +38,8 @@ const signContractSchema = z.object({
 
 export default async function regionalAgreementsRoutes(fastify: FastifyInstance) {
   
-  // GET /api/v1/regional-agreements - Liste aller Vereinbarungen
-  fastify.get('/api/v1/regional-agreements', async (request: FastifyRequest, _reply: FastifyReply) => {
+  // GET /api/regional-agreements - Liste aller Vereinbarungen
+  fastify.get('/api/regional-agreements', async (request: FastifyRequest, _reply: FastifyReply) => {
     const { status, region } = request.query as { status?: string; region?: string };
     
     const where: any = {};
@@ -62,8 +62,8 @@ export default async function regionalAgreementsRoutes(fastify: FastifyInstance)
     };
   });
 
-  // GET /api/v1/regional-agreements/:id - Einzelne Vereinbarung
-  fastify.get('/api/v1/regional-agreements/:id', async (request: FastifyRequest, reply: FastifyReply) => {
+  // GET /api/regional-agreements/:id - Einzelne Vereinbarung
+  fastify.get('/api/regional-agreements/:id', async (request: FastifyRequest, reply: FastifyReply) => {
     const { id } = request.params as { id: string };
     
     const agreement = await prisma.regionalAgreement.findUnique({
@@ -80,8 +80,8 @@ export default async function regionalAgreementsRoutes(fastify: FastifyInstance)
     return { success: true, data: agreement };
   });
 
-  // GET /api/v1/regional-agreements/by-region/:regionCode - Nach Region suchen
-  fastify.get('/api/v1/regional-agreements/by-region/:regionCode', async (request: FastifyRequest, _reply: FastifyReply) => {
+  // GET /api/regional-agreements/by-region/:regionCode - Nach Region suchen
+  fastify.get('/api/regional-agreements/by-region/:regionCode', async (request: FastifyRequest, _reply: FastifyReply) => {
     const { regionCode } = request.params as { regionCode: string };
     
     const agreement = await prisma.regionalAgreement.findFirst({
@@ -98,8 +98,8 @@ export default async function regionalAgreementsRoutes(fastify: FastifyInstance)
     };
   });
 
-  // POST /api/v1/regional-agreements - Neue Vereinbarung erstellen
-  fastify.post('/api/v1/regional-agreements', async (request: FastifyRequest, reply: FastifyReply) => {
+  // POST /api/regional-agreements - Neue Vereinbarung erstellen
+  fastify.post('/api/regional-agreements', async (request: FastifyRequest, reply: FastifyReply) => {
     const input = createAgreementSchema.parse(request.body);
     
     // Check for overlapping regions
@@ -148,8 +148,8 @@ export default async function regionalAgreementsRoutes(fastify: FastifyInstance)
     return reply.status(201).send({ success: true, data: agreement });
   });
 
-  // PATCH /api/v1/regional-agreements/:id - Vereinbarung aktualisieren
-  fastify.patch('/api/v1/regional-agreements/:id', async (request: FastifyRequest, reply: FastifyReply) => {
+  // PATCH /api/regional-agreements/:id - Vereinbarung aktualisieren
+  fastify.patch('/api/regional-agreements/:id', async (request: FastifyRequest, reply: FastifyReply) => {
     const { id } = request.params as { id: string };
     const input = updateAgreementSchema.parse(request.body);
     
@@ -183,8 +183,8 @@ export default async function regionalAgreementsRoutes(fastify: FastifyInstance)
     return { success: true, data: agreement };
   });
 
-  // POST /api/v1/regional-agreements/:id/sign - Vertrag unterzeichnen
-  fastify.post('/api/v1/regional-agreements/:id/sign', async (request: FastifyRequest, reply: FastifyReply) => {
+  // POST /api/regional-agreements/:id/sign - Vertrag unterzeichnen
+  fastify.post('/api/regional-agreements/:id/sign', async (request: FastifyRequest, reply: FastifyReply) => {
     const { id } = request.params as { id: string };
     const input = signContractSchema.parse(request.body);
     
@@ -224,8 +224,8 @@ export default async function regionalAgreementsRoutes(fastify: FastifyInstance)
     return { success: true, data: agreement };
   });
 
-  // DELETE /api/v1/regional-agreements/:id - Vereinbarung beenden
-  fastify.delete('/api/v1/regional-agreements/:id', async (request: FastifyRequest, reply: FastifyReply) => {
+  // DELETE /api/regional-agreements/:id - Vereinbarung beenden
+  fastify.delete('/api/regional-agreements/:id', async (request: FastifyRequest, reply: FastifyReply) => {
     const { id } = request.params as { id: string };
     
     const existing = await prisma.regionalAgreement.findUnique({ where: { id } });

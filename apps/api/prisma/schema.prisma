@@ -292,8 +292,151 @@ enum CommissionStatus {
 }
 
 // ==============================================
-// Payouts
-// Sammel-Auszahlungen via Stripe Connect
+// Revenue Records
+// Revenue-Tracking für Mitgliedschaften und Transaktionen
+// ==============================================
+
+model RevenueRecord {
+  id                    String   @id @default(uuid()) @db.Uuid
+  
+  // Type
+  type                  RevenueType
+  
+  // Payment-Daten
+  amount                Decimal  @db.Decimal(12, 2) // Original-Betrag (z.B. €29 oder €100)
+  currency              String   @default("EUR")
+  stripePaymentId       String   @map("stripe_payment_id") // Stripe Payment Intent/Checkout Session ID
+  paymentDate           DateTime @map("payment_date")
+  
+  // Revenue-Aufteilung
+  platformOwnerAmount   Decimal  @map("platform_owner_amount") @db.Decimal(12, 2) // Was Platform Owner behält
+  regionalPartnerProvision Decimal @map("regional_partner_provision") @db.Decimal(12, 2) // Was Regional Partner bekommt
+  transactionFee        Decimal? @map("transaction_fee") @db.Decimal(12, 2) // Nur bei Transaktionen (3.9% + €0.50)
+  
+  // Zuordnung
+  regionId              String   @map("region_id") // Region ID (aus RegionalAgreement)
+  regionalPartnerId     String   @map("regional_partner_id") // Regional Partner Tenant ID
+  tenantId              String?  @map("tenant_id") // Nur bei Transaktionen
+  userId                String?  @map("user_id") // Nur bei Mitgliedschaften (Clerk User ID)
+  
+  // Membership-spezifisch
+  membershipType        MembershipType? @map("membership_type")
+  
+  // Transaction-spezifisch
+  transactionType       TransactionType? @map("transaction_type")
+  
+  // Payout-Management
+  payoutPeriod          String   @map("payout_period") // Format: 'YYYY-MM' (z.B. '2025-01')
+  payoutStatus          RevenuePayoutStatus @map("payout_status") @default(PENDING)
+  payoutId              String?  @map("payout_id") @db.Uuid
+  payoutDate            DateTime? @map("payout_date")
+  payoutReference       String?  @map("payout_reference") // Banküberweisungs-Referenz
+  
+  // Metadata
+  metadata              Json?
+  createdAt            DateTime @default(now()) @map("created_at")
+  updatedAt            DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  payout                RegionalPayout? @relation(fields: [payoutId], references: [id])
+
+  @@index([type])
+  @@index([regionalPartnerId])
+  @@index([payoutPeriod])
+  @@index([payoutStatus])
+  @@index([userId])
+  @@index([tenantId])
+  @@index([paymentDate])
+  @@map("revenue_records")
+}
+
+enum RevenueType {
+  MEMBERSHIP
+  TRANSACTION
+}
+
+enum MembershipType {
+  LEBENSENERGIE
+  RESILIENZ
+  BUSINESS_BOOTCAMP
+  REGENERATIONSMEDIZIN_OS
+}
+
+enum TransactionType {
+  EVENT_BOOKING
+  MENTORING
+  WORKSHOP
+}
+
+enum RevenuePayoutStatus {
+  PENDING
+  APPROVED
+  PAID
+  CANCELLED
+}
+
+// ==============================================
+// Regional Payouts
+// Monatliche Auszahlungen an Regional Partner
+// ==============================================
+
+model RegionalPayout {
+  id                    String   @id @default(uuid()) @db.Uuid
+  
+  // Recipient
+  regionalPartnerId     String   @map("regional_partner_id")
+  regionalPartnerName   String?  @map("regional_partner_name")
+  
+  // Period
+  payoutPeriod          String   @map("payout_period") // Format: 'YYYY-MM'
+  
+  // Revenue-Zusammenfassung
+  totalRevenue          Decimal  @map("total_revenue") @db.Decimal(12, 2) // Summe aller Revenue Records
+  totalProvision       Decimal  @map("total_provision") @db.Decimal(12, 2) // Summe aller Provisionen
+  revenueCount         Int      @map("revenue_count") // Anzahl der Revenue Records
+  
+  // Breakdown nach Typ
+  membershipProvision   Decimal  @map("membership_provision") @db.Decimal(12, 2)
+  transactionProvision  Decimal  @map("transaction_provision") @db.Decimal(12, 2)
+  membershipCount       Int      @map("membership_count")
+  transactionCount      Int      @map("transaction_count")
+  
+  // Status
+  status                RegionalPayoutStatus @default(PENDING)
+  approvedAt            DateTime? @map("approved_at")
+  approvedBy            String?   @map("approved_by")
+  paidAt                DateTime? @map("paid_at")
+  paymentReference      String?   @map("payment_reference") // Banküberweisungs-Referenz
+  
+  // Bank-Details
+  bankAccountIban       String?  @map("bank_account_iban")
+  bankAccountBic        String?  @map("bank_account_bic")
+  bankAccountHolder     String?  @map("bank_account_holder")
+  
+  // Metadata
+  metadata              Json?
+  createdAt            DateTime @default(now()) @map("created_at")
+  updatedAt            DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  revenueRecords        RevenueRecord[]
+
+  @@index([regionalPartnerId])
+  @@index([payoutPeriod])
+  @@index([status])
+  @@map("regional_payouts")
+}
+
+enum RegionalPayoutStatus {
+  PENDING
+  APPROVED
+  PAID
+  CANCELLED
+}
+
+// ==============================================
+// Payouts (Affiliate)
+// Sammel-Auszahlungen via Stripe Connect für Affiliates
 // ==============================================
 
 model Payout {

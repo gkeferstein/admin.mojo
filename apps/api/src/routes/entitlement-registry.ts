@@ -10,8 +10,8 @@ import { EntitlementCategory, ResourceType } from '../types/entitlement.js';
 
 export default async function entitlementRegistryRoutes(fastify: FastifyInstance) {
   
-  // GET /api/v1/entitlement-registry - Get all entitlements
-  fastify.get('/api/v1/entitlement-registry', async (request: FastifyRequest, _reply: FastifyReply) => {
+  // GET /api/entitlement-registry - Get all entitlements
+  fastify.get('/api/entitlement-registry', async (request: FastifyRequest, _reply: FastifyReply) => {
     const entitlements = entitlementRegistry.getAll();
     
     return {
@@ -23,8 +23,8 @@ export default async function entitlementRegistryRoutes(fastify: FastifyInstance
     };
   });
 
-  // GET /api/v1/entitlement-registry/stats - Get registry statistics
-  fastify.get('/api/v1/entitlement-registry/stats', async (request: FastifyRequest, _reply: FastifyReply) => {
+  // GET /api/entitlement-registry/stats - Get registry statistics
+  fastify.get('/api/entitlement-registry/stats', async (request: FastifyRequest, _reply: FastifyReply) => {
     const stats = entitlementRegistry.getStats();
     
     return {
@@ -33,8 +33,8 @@ export default async function entitlementRegistryRoutes(fastify: FastifyInstance
     };
   });
 
-  // GET /api/v1/entitlement-registry/by-category/:category - Get entitlements by category
-  fastify.get('/api/v1/entitlement-registry/by-category/:category', async (request: FastifyRequest, reply: FastifyReply) => {
+  // GET /api/entitlement-registry/by-category/:category - Get entitlements by category
+  fastify.get('/api/entitlement-registry/by-category/:category', async (request: FastifyRequest, reply: FastifyReply) => {
     const { category } = request.params as { category: string };
     
     // Validate category
@@ -60,8 +60,8 @@ export default async function entitlementRegistryRoutes(fastify: FastifyInstance
     };
   });
 
-  // GET /api/v1/entitlement-registry/by-resource-type/:resourceType - Get entitlements by resource type
-  fastify.get('/api/v1/entitlement-registry/by-resource-type/:resourceType', async (request: FastifyRequest, reply: FastifyReply) => {
+  // GET /api/entitlement-registry/by-resource-type/:resourceType - Get entitlements by resource type
+  fastify.get('/api/entitlement-registry/by-resource-type/:resourceType', async (request: FastifyRequest, reply: FastifyReply) => {
     const { resourceType } = request.params as { resourceType: string };
     
     // Validate resource type
@@ -87,8 +87,8 @@ export default async function entitlementRegistryRoutes(fastify: FastifyInstance
     };
   });
 
-  // GET /api/v1/entitlement-registry/:id - Get specific entitlement
-  fastify.get('/api/v1/entitlement-registry/:id', async (request: FastifyRequest, reply: FastifyReply) => {
+  // GET /api/entitlement-registry/:id - Get specific entitlement
+  fastify.get('/api/entitlement-registry/:id', async (request: FastifyRequest, reply: FastifyReply) => {
     const { id } = request.params as { id: string };
     
     const entitlement = entitlementRegistry.getById(id);
@@ -109,8 +109,8 @@ export default async function entitlementRegistryRoutes(fastify: FastifyInstance
     };
   });
 
-  // POST /api/v1/entitlement-registry/validate - Validate entitlement IDs
-  fastify.post('/api/v1/entitlement-registry/validate', async (request: FastifyRequest, _reply: FastifyReply) => {
+  // POST /api/entitlement-registry/validate - Validate entitlement IDs
+  fastify.post('/api/entitlement-registry/validate', async (request: FastifyRequest, _reply: FastifyReply) => {
     const schema = z.object({
       ids: z.array(z.string()).min(1),
     });

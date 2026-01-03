@@ -36,8 +36,8 @@ const ATTRIBUTION_DURATION_YEARS = 3;
 
 export default async function customerAttributionsRoutes(fastify: FastifyInstance) {
   
-  // GET /api/v1/customer-attributions - Liste aller Attributionen
-  fastify.get('/api/v1/customer-attributions', async (request: FastifyRequest, reply: FastifyReply) => {
+  // GET /api/customer-attributions - Liste aller Attributionen
+  fastify.get('/api/customer-attributions', async (request: FastifyRequest, reply: FastifyReply) => {
     const query = querySchema.parse(request.query);
     
     const where: any = {};
@@ -77,8 +77,8 @@ export default async function customerAttributionsRoutes(fastify: FastifyInstanc
     };
   });
 
-  // GET /api/v1/customer-attributions/:userId - Attribution eines Kunden
-  fastify.get('/api/v1/customer-attributions/:userId', async (request: FastifyRequest, reply: FastifyReply) => {
+  // GET /api/customer-attributions/:userId - Attribution eines Kunden
+  fastify.get('/api/customer-attributions/:userId', async (request: FastifyRequest, reply: FastifyReply) => {
     const { userId } = request.params as { userId: string };
     
     const attribution = await prisma.customerAttribution.findUnique({
@@ -107,8 +107,8 @@ export default async function customerAttributionsRoutes(fastify: FastifyInstanc
     };
   });
 
-  // POST /api/v1/customer-attributions - Neue Attribution erstellen
-  fastify.post('/api/v1/customer-attributions', async (request: FastifyRequest, reply: FastifyReply) => {
+  // POST /api/customer-attributions - Neue Attribution erstellen
+  fastify.post('/api/customer-attributions', async (request: FastifyRequest, reply: FastifyReply) => {
     const input = createAttributionSchema.parse(request.body);
     
     // Check if customer already has attribution
@@ -159,8 +159,8 @@ export default async function customerAttributionsRoutes(fastify: FastifyInstanc
     return reply.status(201).send({ success: true, data: attribution });
   });
 
-  // POST /api/v1/customer-attributions/:userId/record-purchase - Kauf aufzeichnen
-  fastify.post('/api/v1/customer-attributions/:userId/record-purchase', async (request: FastifyRequest, reply: FastifyReply) => {
+  // POST /api/customer-attributions/:userId/record-purchase - Kauf aufzeichnen
+  fastify.post('/api/customer-attributions/:userId/record-purchase', async (request: FastifyRequest, reply: FastifyReply) => {
     const { userId } = request.params as { userId: string };
     const input = z.object({
       orderId: z.string(),
@@ -199,8 +199,8 @@ export default async function customerAttributionsRoutes(fastify: FastifyInstanc
     };
   });
 
-  // DELETE /api/v1/customer-attributions/:userId - Attribution entfernen (Admin only)
-  fastify.delete('/api/v1/customer-attributions/:userId', async (request: FastifyRequest, reply: FastifyReply) => {
+  // DELETE /api/customer-attributions/:userId - Attribution entfernen (Admin only)
+  fastify.delete('/api/customer-attributions/:userId', async (request: FastifyRequest, reply: FastifyReply) => {
     const { userId } = request.params as { userId: string };
     const { reason } = request.query as { reason?: string };
     
@@ -231,8 +231,8 @@ export default async function customerAttributionsRoutes(fastify: FastifyInstanc
     return { success: true, message: 'Attribution removed' };
   });
 
-  // GET /api/v1/customer-attributions/stats - Statistiken
-  fastify.get('/api/v1/customer-attributions/stats', async (request: FastifyRequest, reply: FastifyReply) => {
+  // GET /api/customer-attributions/stats - Statistiken
+  fastify.get('/api/customer-attributions/stats', async (request: FastifyRequest, reply: FastifyReply) => {
     const { tenantId } = request.query as { tenantId?: string };
     
     const now = new Date();
@@ -279,8 +279,8 @@ export default async function customerAttributionsRoutes(fastify: FastifyInstanc
     };
   });
 
-  // POST /api/v1/customer-attributions/check - Attribution prüfen (für payments.mojo)
-  fastify.post('/api/v1/customer-attributions/check', async (request: FastifyRequest, reply: FastifyReply) => {
+  // POST /api/customer-attributions/check - Attribution prüfen (für payments.mojo)
+  fastify.post('/api/customer-attributions/check', async (request: FastifyRequest, reply: FastifyReply) => {
     const input = z.object({
       customerUserId: z.string(),
     }).parse(request.body);

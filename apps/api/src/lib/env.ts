@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 const envSchema = z.object({
-  PORT: z.string().transform(Number).default('3000'),
+  PORT: z.string().transform(Number).default('3011'),
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   DATABASE_URL: z.string().default('postgresql://localhost:5432/admin_mojo'),
   
@@ -32,7 +32,7 @@ if (!parsed.success) {
 }
 
 export const env = parsed.data || {
-  PORT: 3000,
+  PORT: 3011,
   NODE_ENV: 'development' as const,
   DATABASE_URL: 'postgresql://localhost:5432/admin_mojo',
   PAYMENTS_API_URL: 'http://localhost:3001',

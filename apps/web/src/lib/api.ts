@@ -7,7 +7,7 @@
 
 const API_BASE_URL = typeof window !== 'undefined' 
   ? (process.env.NEXT_PUBLIC_API_URL || window.location.origin)
-  : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001');
+  : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3011');
 
 export interface ApiResponse<T> {
   success: boolean;
@@ -135,14 +135,14 @@ class ApiClient {
   async getPlatformProducts(active?: boolean): Promise<PlatformProduct[]> {
     const params = active !== undefined ? `?active=${active}` : '';
     const response = await this.request<PlatformProduct[]>(
-      `/api/v1/platform-products${params}`
+      `/api/platform-products${params}`
     );
     return response.data;
   }
 
   async getPlatformProduct(id: string): Promise<PlatformProduct> {
     const response = await this.request<PlatformProduct>(
-      `/api/v1/platform-products/${id}`
+      `/api/platform-products/${id}`
     );
     return response.data;
   }
@@ -152,7 +152,7 @@ class ApiClient {
     data: Partial<PlatformProduct>
   ): Promise<PlatformProduct> {
     const response = await this.request<PlatformProduct>(
-      `/api/v1/platform-products/${id}`,
+      `/api/platform-products/${id}`,
       {
         method: 'PATCH',
         body: JSON.stringify(data),
@@ -173,7 +173,7 @@ class ApiClient {
     }
   ): Promise<ProductEntitlement> {
     const response = await this.request<ProductEntitlement>(
-      `/api/v1/platform-products/${productId}/entitlements`,
+      `/api/platform-products/${productId}/entitlements`,
       {
         method: 'POST',
         body: JSON.stringify(entitlement),
@@ -187,7 +187,7 @@ class ApiClient {
     entitlementId: string
   ): Promise<void> {
     await this.request(
-      `/api/v1/platform-products/${productId}/entitlements/${entitlementId}`,
+      `/api/platform-products/${productId}/entitlements/${entitlementId}`,
       {
         method: 'DELETE',
       }
@@ -197,7 +197,7 @@ class ApiClient {
   // Entitlement Registry
   async getEntitlementRegistry(): Promise<EntitlementDefinition[]> {
     const response = await this.request<EntitlementDefinition[]>(
-      `/api/v1/entitlement-registry`
+      `/api/entitlement-registry`
     );
     return response.data;
   }
@@ -206,14 +206,14 @@ class ApiClient {
     category: string
   ): Promise<EntitlementDefinition[]> {
     const response = await this.request<EntitlementDefinition[]>(
-      `/api/v1/entitlement-registry/by-category/${category}`
+      `/api/entitlement-registry/by-category/${category}`
     );
     return response.data;
   }
 
   async getEntitlementById(id: string): Promise<EntitlementDefinition> {
     const response = await this.request<EntitlementDefinition>(
-      `/api/v1/entitlement-registry/${id}`
+      `/api/entitlement-registry/${id}`
     );
     return response.data;
   }
@@ -221,7 +221,7 @@ class ApiClient {
   // Character Limits
   async getCharLimits(): Promise<CharLimits> {
     const response = await this.request<CharLimits>(
-      `/api/v1/platform-products/char-limits`
+      `/api/platform-products/char-limits`
     );
     return response.data;
   }
@@ -229,7 +229,7 @@ class ApiClient {
   // Seed Products
   async seedPlatformProducts(): Promise<{ message: string }> {
     const response = await this.request<{ message: string }>(
-      `/api/v1/platform-products/seed`,
+      `/api/platform-products/seed`,
       { method: 'POST' }
     );
     return response.data;

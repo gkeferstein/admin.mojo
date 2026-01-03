@@ -79,41 +79,41 @@ Auszahlungslogik:
 ## API Endpoints
 
 ### Regional Agreements
-- `GET /api/v1/regional-agreements` - Liste aller Verträge
-- `POST /api/v1/regional-agreements` - Neuen Vertrag erstellen
-- `GET /api/v1/regional-agreements/by-region/:code` - Nach Region suchen
-- `POST /api/v1/regional-agreements/:id/sign` - Vertrag unterzeichnen
+- `GET /api/regional-agreements` - Liste aller Verträge
+- `POST /api/regional-agreements` - Neuen Vertrag erstellen
+- `GET /api/regional-agreements/by-region/:code` - Nach Region suchen
+- `POST /api/regional-agreements/:id/sign` - Vertrag unterzeichnen
 
 ### Platform Products
-- `GET /api/v1/platform-products` - Liste aller Produkte
-- `GET /api/v1/platform-products/by-level/:level` - Nach Level
-- `POST /api/v1/platform-products/seed` - Seed-Daten erstellen
+- `GET /api/platform-products` - Liste aller Produkte
+- `GET /api/platform-products/by-level/:level` - Nach Level
+- `POST /api/platform-products/seed` - Seed-Daten erstellen
 
 ### Customer Attributions
-- `GET /api/v1/customer-attributions/:userId` - Attribution prüfen
-- `POST /api/v1/customer-attributions` - Neue Attribution
-- `POST /api/v1/customer-attributions/check` - Attribution für Order prüfen
+- `GET /api/customer-attributions/:userId` - Attribution prüfen
+- `POST /api/customer-attributions` - Neue Attribution
+- `POST /api/customer-attributions/check` - Attribution für Order prüfen
 
 ### Commissions
-- `POST /api/v1/commissions/calculate` - Provision berechnen (Preview)
-- `POST /api/v1/commissions/process` - Provision verarbeiten
-- `GET /api/v1/commissions` - Liste aller Provisionen
-- `POST /api/v1/commissions/refund` - Provisionen stornieren
-- `POST /api/v1/commissions/approve-eligible` - Fällige genehmigen
+- `POST /api/commissions/calculate` - Provision berechnen (Preview)
+- `POST /api/commissions/process` - Provision verarbeiten
+- `GET /api/commissions` - Liste aller Provisionen
+- `POST /api/commissions/refund` - Provisionen stornieren
+- `POST /api/commissions/approve-eligible` - Fällige genehmigen
 
 ### Payouts
-- `GET /api/v1/payouts` - Liste aller Auszahlungen
-- `POST /api/v1/payouts/create` - Neue Auszahlung erstellen
-- `POST /api/v1/payouts/:id/process` - Auszahlung verarbeiten
-- `GET /api/v1/payouts/pending-payout` - Auszahlungsreife anzeigen
+- `GET /api/payouts` - Liste aller Auszahlungen
+- `POST /api/payouts/create` - Neue Auszahlung erstellen
+- `POST /api/payouts/:id/process` - Auszahlung verarbeiten
+- `GET /api/payouts/pending-payout` - Auszahlungsreife anzeigen
 
 ### Contracts
-- `GET /api/v1/contracts/templates` - Verfügbare Vertragsvorlagen
-- `POST /api/v1/contracts/sign` - Vertrag unterzeichnen
-- `GET /api/v1/contracts/verify/:tenantId/:type` - Vertragsstatus prüfen
+- `GET /api/contracts/templates` - Verfügbare Vertragsvorlagen
+- `POST /api/contracts/sign` - Vertrag unterzeichnen
+- `GET /api/contracts/verify/:tenantId/:type` - Vertragsstatus prüfen
 
 ### Audit
-- `GET /api/v1/audit` - Audit-Logs abfragen
+- `GET /api/audit` - Audit-Logs abfragen
 
 ## Quick Start
 
@@ -153,7 +153,7 @@ docker-compose logs -f
 
 ```env
 # API
-PORT=3010
+PORT=3011
 DATABASE_URL=postgresql://localhost:5432/admin_mojo
 NODE_ENV=development
 

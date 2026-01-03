@@ -65,7 +65,13 @@ export default function RootLayout({
   // If Clerk is configured, wrap with ClerkProvider
   if (hasClerk) {
     return (
-      <ClerkProvider appearance={clerkAppearance}>
+      <ClerkProvider
+        appearance={clerkAppearance}
+        afterSignInUrl="/dashboard"
+        afterSignUpUrl="/dashboard"
+        signInFallbackRedirectUrl="/dashboard"
+        signUpFallbackRedirectUrl="/dashboard"
+      >
         {content}
       </ClerkProvider>
     );

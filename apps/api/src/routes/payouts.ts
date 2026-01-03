@@ -31,8 +31,8 @@ const MINIMUM_PAYOUT = 50;
 
 export default async function payoutsRoutes(fastify: FastifyInstance) {
   
-  // GET /api/v1/payouts - Liste aller Auszahlungen
-  fastify.get('/api/v1/payouts', async (request: FastifyRequest, reply: FastifyReply) => {
+  // GET /api/payouts - Liste aller Auszahlungen
+  fastify.get('/api/payouts', async (request: FastifyRequest, reply: FastifyReply) => {
     const query = querySchema.parse(request.query);
     
     const where: any = {};
@@ -76,8 +76,8 @@ export default async function payoutsRoutes(fastify: FastifyInstance) {
     };
   });
 
-  // GET /api/v1/payouts/:id - Einzelne Auszahlung
-  fastify.get('/api/v1/payouts/:id', async (request: FastifyRequest, reply: FastifyReply) => {
+  // GET /api/payouts/:id - Einzelne Auszahlung
+  fastify.get('/api/payouts/:id', async (request: FastifyRequest, reply: FastifyReply) => {
     const { id } = request.params as { id: string };
     
     const payout = await prisma.payout.findUnique({
@@ -97,8 +97,8 @@ export default async function payoutsRoutes(fastify: FastifyInstance) {
     return { success: true, data: payout };
   });
 
-  // POST /api/v1/payouts/create - Neue Auszahlung erstellen
-  fastify.post('/api/v1/payouts/create', async (request: FastifyRequest, reply: FastifyReply) => {
+  // POST /api/payouts/create - Neue Auszahlung erstellen
+  fastify.post('/api/payouts/create', async (request: FastifyRequest, reply: FastifyReply) => {
     const input = createPayoutSchema.parse(request.body);
     
     // Get all approved commissions for this tenant
@@ -181,8 +181,8 @@ export default async function payoutsRoutes(fastify: FastifyInstance) {
     });
   });
 
-  // POST /api/v1/payouts/:id/process - Auszahlung verarbeiten (Stripe Transfer)
-  fastify.post('/api/v1/payouts/:id/process', async (request: FastifyRequest, reply: FastifyReply) => {
+  // POST /api/payouts/:id/process - Auszahlung verarbeiten (Stripe Transfer)
+  fastify.post('/api/payouts/:id/process', async (request: FastifyRequest, reply: FastifyReply) => {
     const { id } = request.params as { id: string };
     
     const payout = await prisma.payout.findUnique({
@@ -244,8 +244,8 @@ export default async function payoutsRoutes(fastify: FastifyInstance) {
     };
   });
 
-  // POST /api/v1/payouts/:id/complete - Auszahlung abschließen (Webhook Handler)
-  fastify.post('/api/v1/payouts/:id/complete', async (request: FastifyRequest, reply: FastifyReply) => {
+  // POST /api/payouts/:id/complete - Auszahlung abschließen (Webhook Handler)
+  fastify.post('/api/payouts/:id/complete', async (request: FastifyRequest, reply: FastifyReply) => {
     const { id } = request.params as { id: string };
     const input = z.object({
       stripePayoutId: z.string().optional(),
@@ -296,8 +296,8 @@ export default async function payoutsRoutes(fastify: FastifyInstance) {
     return { success: true, data: updated };
   });
 
-  // POST /api/v1/payouts/:id/fail - Auszahlung fehlgeschlagen
-  fastify.post('/api/v1/payouts/:id/fail', async (request: FastifyRequest, reply: FastifyReply) => {
+  // POST /api/payouts/:id/fail - Auszahlung fehlgeschlagen
+  fastify.post('/api/payouts/:id/fail', async (request: FastifyRequest, reply: FastifyReply) => {
     const { id } = request.params as { id: string };
     const input = z.object({
       reason: z.string(),
@@ -341,8 +341,8 @@ export default async function payoutsRoutes(fastify: FastifyInstance) {
     return { success: true, data: updated };
   });
 
-  // GET /api/v1/payouts/stats - Auszahlungsstatistiken
-  fastify.get('/api/v1/payouts/stats', async (request: FastifyRequest, reply: FastifyReply) => {
+  // GET /api/payouts/stats - Auszahlungsstatistiken
+  fastify.get('/api/payouts/stats', async (request: FastifyRequest, reply: FastifyReply) => {
     const { recipientTenantId } = request.query as { recipientTenantId?: string };
     
     const where: any = {};
@@ -378,8 +378,8 @@ export default async function payoutsRoutes(fastify: FastifyInstance) {
     };
   });
 
-  // POST /api/v1/payouts/process-all - Alle fälligen Auszahlungen verarbeiten (Cron)
-  fastify.post('/api/v1/payouts/process-all', async (_request: FastifyRequest, _reply: FastifyReply) => {
+  // POST /api/payouts/process-all - Alle fälligen Auszahlungen verarbeiten (Cron)
+  fastify.post('/api/payouts/process-all', async (_request: FastifyRequest, _reply: FastifyReply) => {
     // Get all tenants with eligible payouts
     const eligibleTenants = await prisma.commission.groupBy({
       by: ['recipientTenantId'],
@@ -411,7 +411,7 @@ export default async function payoutsRoutes(fastify: FastifyInstance) {
         })),
         ...results,
       },
-      note: 'Use /api/v1/payouts/create to create individual payouts with stripeAccountId',
+      note: 'Use /api/payouts/create to create individual payouts with stripeAccountId',
     };
   });
 }

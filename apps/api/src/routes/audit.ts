@@ -23,8 +23,8 @@ const querySchema = z.object({
 
 export default async function auditRoutes(fastify: FastifyInstance) {
   
-  // GET /api/v1/audit - Audit Logs abfragen
-  fastify.get('/api/v1/audit', async (request: FastifyRequest, reply: FastifyReply) => {
+  // GET /api/audit - Audit Logs abfragen
+  fastify.get('/api/audit', async (request: FastifyRequest, reply: FastifyReply) => {
     const query = querySchema.parse(request.query);
     
     const { logs, total } = await queryAuditLogs({
@@ -50,8 +50,8 @@ export default async function auditRoutes(fastify: FastifyInstance) {
     };
   });
 
-  // GET /api/v1/audit/resources - Verfügbare Ressourcen
-  fastify.get('/api/v1/audit/resources', async (request: FastifyRequest, reply: FastifyReply) => {
+  // GET /api/audit/resources - Verfügbare Ressourcen
+  fastify.get('/api/audit/resources', async (request: FastifyRequest, reply: FastifyReply) => {
     return {
       success: true,
       data: [
@@ -65,8 +65,8 @@ export default async function auditRoutes(fastify: FastifyInstance) {
     };
   });
 
-  // GET /api/v1/audit/actions - Verfügbare Aktionen
-  fastify.get('/api/v1/audit/actions', async (request: FastifyRequest, reply: FastifyReply) => {
+  // GET /api/audit/actions - Verfügbare Aktionen
+  fastify.get('/api/audit/actions', async (request: FastifyRequest, reply: FastifyReply) => {
     return {
       success: true,
       data: [

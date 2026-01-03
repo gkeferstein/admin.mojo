@@ -2,7 +2,10 @@ import Fastify, { FastifyRequest, FastifyReply } from 'fastify';
 import cors from '@fastify/cors';
 import { logger } from './lib/logger';
 import { env } from './lib/env';
+import prisma from './lib/prisma.js';
 import regionalAgreementsRoutes from './routes/regional-agreements';
+import regionalPartnersRoutes from './routes/regional-partners.js';
+import regionalPayoutsRoutes from './routes/regional-payouts.js';
 import platformProductsRoutes from './routes/platform-products.js';
 import customerAttributionsRoutes from './routes/customer-attributions.js';
 import commissionsRoutes from './routes/commissions.js';
@@ -22,32 +25,53 @@ await fastify.register(cors, {
 });
 
 // Health check
-fastify.get('/health', async () => ({
-  status: 'ok',
-  service: 'admin.mojo-api',
-  version: '1.0.0',
-  timestamp: new Date().toISOString(),
-}));
+const startTime = Date.now();
+fastify.get('/health', async () => {
+  const uptime = Math.floor((Date.now() - startTime) / 1000);
+  
+  // Check database connection
+  let dbStatus = 'ok';
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+  } catch (error) {
+    dbStatus = 'error';
+  }
+  
+  return {
+    status: 'ok',
+    service: 'admin.mojo-api',
+    version: '1.0.0',
+    uptime,
+    timestamp: new Date().toISOString(),
+    checks: {
+      database: dbStatus,
+    },
+  };
+});
 
 // API Info
-fastify.get('/api/v1', async () => ({
+fastify.get('/api', async () => ({
   service: 'admin.mojo API',
   version: '1.0.0',
   description: 'Platform Administration API für das MOJO Ökosystem',
     endpoints: {
-      'regional-agreements': '/api/v1/regional-agreements',
-      'platform-products': '/api/v1/platform-products',
-      'customer-attributions': '/api/v1/customer-attributions',
-      commissions: '/api/v1/commissions',
-      payouts: '/api/v1/payouts',
-      contracts: '/api/v1/contracts',
-      audit: '/api/v1/audit',
-      'entitlement-registry': '/api/v1/entitlement-registry',
+      'regional-agreements': '/api/regional-agreements',
+      'regional-partners': '/api/regional-partners',
+      'regional-payouts': '/api/regional-payouts',
+      'platform-products': '/api/platform-products',
+      'customer-attributions': '/api/customer-attributions',
+      commissions: '/api/commissions',
+      payouts: '/api/payouts',
+      contracts: '/api/contracts',
+      audit: '/api/audit',
+      'entitlement-registry': '/api/entitlement-registry',
     },
 }));
 
 // Register routes
 await fastify.register(regionalAgreementsRoutes);
+await fastify.register(regionalPartnersRoutes);
+await fastify.register(regionalPayoutsRoutes);
 await fastify.register(platformProductsRoutes);
 await fastify.register(customerAttributionsRoutes);
 await fastify.register(commissionsRoutes);
@@ -118,14 +142,14 @@ const start = async () => {
 ║  Environment: ${env.NODE_ENV.padEnd(20)}                   ║
 ║                                                           ║
 ║  Endpoints:                                               ║
-║  • Regional Agreements: /api/v1/regional-agreements       ║
-║  • Platform Products:   /api/v1/platform-products         ║
-║  • Customer Attribution:/api/v1/customer-attributions     ║
-║  • Commissions:         /api/v1/commissions               ║
-║  • Payouts:             /api/v1/payouts                   ║
-║  • Contracts:           /api/v1/contracts                 ║
-║  • Audit:               /api/v1/audit                     ║
-║  • Entitlement Registry:/api/v1/entitlement-registry      ║
+║  • Regional Agreements: /api/regional-agreements          ║
+║  • Platform Products:   /api/platform-products            ║
+║  • Customer Attribution:/api/customer-attributions         ║
+║  • Commissions:         /api/commissions                   ║
+║  • Payouts:             /api/payouts                       ║
+║  • Contracts:           /api/contracts                     ║
+║  • Audit:               /api/audit                         ║
+║  • Entitlement Registry:/api/entitlement-registry         ║
 ╚═══════════════════════════════════════════════════════════╝
     `);
   } catch (err) {

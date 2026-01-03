@@ -246,8 +246,8 @@ const DEFAULT_PRODUCTS = [
 
 export default async function platformProductsRoutes(fastify: FastifyInstance) {
   
-  // GET /api/v1/platform-products - Liste aller Produkte
-  fastify.get('/api/v1/platform-products', async (request: FastifyRequest, _reply: FastifyReply) => {
+  // GET /api/platform-products - Liste aller Produkte
+  fastify.get('/api/platform-products', async (request: FastifyRequest, _reply: FastifyReply) => {
     const { active } = request.query as { active?: string };
     
     const where: any = {};
@@ -288,8 +288,8 @@ export default async function platformProductsRoutes(fastify: FastifyInstance) {
     };
   });
 
-  // GET /api/v1/platform-products/:id - Einzelnes Produkt
-  fastify.get('/api/v1/platform-products/:id', async (request: FastifyRequest, reply: FastifyReply) => {
+  // GET /api/platform-products/:id - Einzelnes Produkt
+  fastify.get('/api/platform-products/:id', async (request: FastifyRequest, reply: FastifyReply) => {
     const { id } = request.params as { id: string };
     
     const product = await prisma.platformProduct.findUnique({
@@ -307,8 +307,8 @@ export default async function platformProductsRoutes(fastify: FastifyInstance) {
     return { success: true, data: product };
   });
 
-  // GET /api/v1/platform-products/by-level/:level - Nach Level
-  fastify.get('/api/v1/platform-products/by-level/:level', async (request: FastifyRequest, reply: FastifyReply) => {
+  // GET /api/platform-products/by-level/:level - Nach Level
+  fastify.get('/api/platform-products/by-level/:level', async (request: FastifyRequest, reply: FastifyReply) => {
     const { level } = request.params as { level: string };
     
     const product = await prisma.platformProduct.findFirst({
@@ -345,8 +345,8 @@ export default async function platformProductsRoutes(fastify: FastifyInstance) {
     return { success: true, data: product };
   });
 
-  // POST /api/v1/platform-products - Neues Produkt erstellen
-  fastify.post('/api/v1/platform-products', async (request: FastifyRequest, reply: FastifyReply) => {
+  // POST /api/platform-products - Neues Produkt erstellen
+  fastify.post('/api/platform-products', async (request: FastifyRequest, reply: FastifyReply) => {
     const input = createProductSchema.parse(request.body);
     
     // Check for duplicate level or slug
@@ -394,8 +394,8 @@ export default async function platformProductsRoutes(fastify: FastifyInstance) {
     return reply.status(201).send({ success: true, data: product });
   });
 
-  // PATCH /api/v1/platform-products/:id - Produkt aktualisieren
-  fastify.patch('/api/v1/platform-products/:id', async (request: FastifyRequest, reply: FastifyReply) => {
+  // PATCH /api/platform-products/:id - Produkt aktualisieren
+  fastify.patch('/api/platform-products/:id', async (request: FastifyRequest, reply: FastifyReply) => {
     const { id } = request.params as { id: string };
     const input = updateProductSchema.parse(request.body);
     
@@ -466,8 +466,8 @@ export default async function platformProductsRoutes(fastify: FastifyInstance) {
     return { success: true, data: product };
   });
 
-  // POST /api/v1/platform-products/:id/entitlements - Entitlement hinzufügen
-  fastify.post('/api/v1/platform-products/:id/entitlements', async (request: FastifyRequest, reply: FastifyReply) => {
+  // POST /api/platform-products/:id/entitlements - Entitlement hinzufügen
+  fastify.post('/api/platform-products/:id/entitlements', async (request: FastifyRequest, reply: FastifyReply) => {
     const { id } = request.params as { id: string };
     const input = z.object({
       resourceType: z.string(),
@@ -503,8 +503,8 @@ export default async function platformProductsRoutes(fastify: FastifyInstance) {
     return reply.status(201).send({ success: true, data: entitlement });
   });
 
-  // DELETE /api/v1/platform-products/:id/entitlements/:entitlementId - Entitlement entfernen
-  fastify.delete('/api/v1/platform-products/:id/entitlements/:entitlementId', async (request: FastifyRequest, reply: FastifyReply) => {
+  // DELETE /api/platform-products/:id/entitlements/:entitlementId - Entitlement entfernen
+  fastify.delete('/api/platform-products/:id/entitlements/:entitlementId', async (request: FastifyRequest, reply: FastifyReply) => {
     const { id, entitlementId } = request.params as { id: string; entitlementId: string };
     
     const entitlement = await prisma.productEntitlement.findFirst({
@@ -531,8 +531,8 @@ export default async function platformProductsRoutes(fastify: FastifyInstance) {
     return { success: true, message: 'Entitlement removed' };
   });
 
-  // POST /api/v1/platform-products/seed - Seed default products
-  fastify.post('/api/v1/platform-products/seed', async (request: FastifyRequest, reply: FastifyReply) => {
+  // POST /api/platform-products/seed - Seed default products
+  fastify.post('/api/platform-products/seed', async (request: FastifyRequest, reply: FastifyReply) => {
     const existing = await prisma.platformProduct.count();
     if (existing > 0) {
       return reply.status(400).send({
@@ -563,8 +563,8 @@ export default async function platformProductsRoutes(fastify: FastifyInstance) {
     });
   });
 
-  // GET /api/v1/platform-products/char-limits - Character limits for UI validation
-  fastify.get('/api/v1/platform-products/char-limits', async () => {
+  // GET /api/platform-products/char-limits - Character limits for UI validation
+  fastify.get('/api/platform-products/char-limits', async () => {
     return {
       success: true,
       data: CHAR_LIMITS,
