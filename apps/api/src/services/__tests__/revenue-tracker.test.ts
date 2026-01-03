@@ -74,7 +74,7 @@ describe('RevenueTracker', () => {
         currency: 'EUR',
         paymentDate: new Date('2025-01-15'),
         userId: 'user_123',
-        membershipType: 'LEBENSENERGIE',
+        membershipType: MembershipType.LEBENSENERGIE,
         billingCountry: 'DE',
       });
 
@@ -85,7 +85,7 @@ describe('RevenueTracker', () => {
           amount: expect.any(Decimal),
           regionalPartnerProvision: expect.any(Decimal),
           platformOwnerAmount: expect.any(Decimal),
-          membershipType: 'LEBENSENERGIE',
+          membershipType: MembershipType.LEBENSENERGIE,
           payoutPeriod: '2025-01',
           payoutStatus: RevenuePayoutStatus.PENDING,
         }),
@@ -102,7 +102,7 @@ describe('RevenueTracker', () => {
           currency: 'EUR',
           paymentDate: new Date('2025-01-15'),
           userId: 'user_123',
-          membershipType: 'LEBENSENERGIE',
+          membershipType: MembershipType.LEBENSENERGIE,
           billingCountry: 'US',
         })
       ).rejects.toThrow('No active regional agreement found');

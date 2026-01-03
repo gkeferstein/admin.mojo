@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { Decimal } from '@prisma/client/runtime/library';
-import { RevenueType, RevenuePayoutStatus, RegionalPayoutStatus } from '@prisma/client';
+import { RevenueType, RevenuePayoutStatus, RegionalPayoutStatus, MembershipType } from '@prisma/client';
 import prisma from '../../lib/prisma.js';
 import { revenueTracker } from '../../services/revenue-tracker.js';
 
@@ -117,7 +117,7 @@ describe('Regional Payouts Routes', () => {
             currency: 'EUR',
             regionalPartnerProvision: new Decimal(8.7),
             paymentDate: new Date('2025-01-15'),
-            membershipType: 'LEBENSENERGIE',
+            membershipType: MembershipType.LEBENSENERGIE,
             transactionType: null,
           },
         ],
