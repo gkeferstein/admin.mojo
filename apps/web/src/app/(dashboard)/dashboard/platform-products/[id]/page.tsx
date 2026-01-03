@@ -465,7 +465,7 @@ export default function ProductEditPage() {
                         onChange={(e) => setFormData({ ...formData, isPopular: e.target.checked })}
                         className="rounded"
                       />
-                      <span>Als "Beliebt" markieren</span>
+                      <span>Als &quot;Beliebt&quot; markieren</span>
                     </label>
 
                     <label className="flex items-center gap-3 cursor-pointer">
@@ -475,7 +475,7 @@ export default function ProductEditPage() {
                         onChange={(e) => setFormData({ ...formData, isExclusive: e.target.checked })}
                         className="rounded"
                       />
-                      <span>Als "Exklusiv" markieren</span>
+                      <span>Als &quot;Exklusiv&quot; markieren</span>
                     </label>
                   </div>
                 </div>
@@ -879,7 +879,7 @@ export default function ProductEditPage() {
                   <div className="text-center py-8 text-muted-foreground">
                     <Shield className="h-12 w-12 mx-auto mb-3 opacity-50" />
                     <p>Keine Entitlements konfiguriert</p>
-                    <p className="text-sm">Klicke auf "Hinzufügen" um Berechtigungen zu vergeben</p>
+                    <p className="text-sm">Klicke auf &quot;Hinzufügen&quot; um Berechtigungen zu vergeben</p>
                   </div>
                 )}
               </div>

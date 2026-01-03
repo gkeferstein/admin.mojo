@@ -75,7 +75,7 @@ export default function TenantOnboardingPage() {
 
             <h3 className="font-bold">3. Attribution</h3>
             <p className="text-muted-foreground">
-              Die Attribution erfolgt nach dem "First Click Wins"-Prinzip. Der erste verwendete 
+              Die Attribution erfolgt nach dem &quot;First Click Wins&quot;-Prinzip. Der erste verwendete 
               Affiliate-Code wird dem Kunden dauerhaft (für 3 Jahre) zugeordnet.
             </p>
 
