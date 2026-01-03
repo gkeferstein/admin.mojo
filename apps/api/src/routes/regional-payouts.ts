@@ -47,7 +47,7 @@ export default async function regionalPayoutsRoutes(fastify: FastifyInstance) {
     const query = request.query as {
       regionalPartnerId?: string;
       period?: string;
-      status?: 'PENDING' | 'APPROVED' | 'PAID' | 'CANCELLED';
+      status?: RevenuePayoutStatus;
       limit?: string;
       offset?: string;
     };
