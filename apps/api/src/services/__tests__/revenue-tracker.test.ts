@@ -126,7 +126,7 @@ describe('RevenueTracker', () => {
         currency: 'EUR',
         paymentDate: new Date('2025-01-15'),
         tenantId: 'tenant-1',
-          transactionType: TransactionType.EVENT_BOOKING,
+        transactionType: TransactionType.EVENT_BOOKING,
         regionId: 'region-1',
         regionalPartnerId: 'tenant-dach',
       });
