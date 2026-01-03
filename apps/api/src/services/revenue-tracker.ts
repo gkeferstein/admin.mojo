@@ -1,6 +1,6 @@
 import prisma from '../lib/prisma.js';
 import { Decimal } from '@prisma/client/runtime/library';
-import { RevenueType, RevenuePayoutStatus, PayoutStatus, AgreementStatus } from '@prisma/client';
+import { RevenueType, RevenuePayoutStatus, RegionalPayoutStatus, AgreementStatus } from '@prisma/client';
 
 // ==============================================
 // Constants
@@ -232,7 +232,7 @@ export class RevenueTracker {
           transactionProvision: transactionProvision.toDecimalPlaces(2),
           membershipCount: membershipRevenues.length,
           transactionCount: transactionRevenues.length,
-          status: PayoutStatus.PENDING,
+          status: RegionalPayoutStatus.PENDING,
         },
       });
 
@@ -264,7 +264,7 @@ export class RevenueTracker {
     await prisma.regionalPayout.update({
       where: { id: payoutId },
       data: {
-        status: PayoutStatus.COMPLETED,
+        status: RegionalPayoutStatus.PAID,
         paidAt,
         paymentReference,
       },

@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { Decimal } from '@prisma/client/runtime/library';
-import { RevenueType, RevenuePayoutStatus, PayoutStatus } from '@prisma/client';
+import { RevenueType, RevenuePayoutStatus, RegionalPayoutStatus } from '@prisma/client';
 import prisma from '../../lib/prisma.js';
 import { revenueTracker } from '../../services/revenue-tracker.js';
 
@@ -117,7 +117,7 @@ describe('Regional Partners Routes', () => {
           transactionProvision: new Decimal(1.32),
           membershipCount: 1,
           transactionCount: 1,
-          status: PayoutStatus.COMPLETED,
+          status: RegionalPayoutStatus.PAID,
           approvedAt: new Date('2025-02-01'),
           paidAt: new Date('2025-02-15'),
           paymentReference: 'REF-12345',
@@ -127,7 +127,7 @@ describe('Regional Partners Routes', () => {
 
       expect(mockPayouts).toHaveLength(1);
       expect(mockPayouts[0].payoutPeriod).toBe('2025-01');
-      expect(mockPayouts[0].status).toBe(PayoutStatus.COMPLETED);
+      expect(mockPayouts[0].status).toBe(RegionalPayoutStatus.PAID);
     });
   });
 });

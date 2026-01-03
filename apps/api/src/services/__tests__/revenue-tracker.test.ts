@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { revenueTracker } from '../revenue-tracker.js';
 import prisma from '../../lib/prisma.js';
 import { Decimal } from '@prisma/client/runtime/library';
-import { RevenueType, RevenuePayoutStatus, PayoutStatus } from '@prisma/client';
+import { RevenueType, RevenuePayoutStatus, RegionalPayoutStatus } from '@prisma/client';
 
 // Mock Prisma
 vi.mock('../../lib/prisma.js', () => ({
@@ -217,7 +217,7 @@ describe('RevenueTracker', () => {
     it('should mark payout and revenue records as paid', async () => {
       (prisma.regionalPayout.update as any).mockResolvedValue({
         id: 'payout-1',
-        status: PayoutStatus.COMPLETED,
+        status: RegionalPayoutStatus.PAID,
       });
       (prisma.revenueRecord.updateMany as any).mockResolvedValue({ count: 5 });
 
@@ -227,7 +227,7 @@ describe('RevenueTracker', () => {
       expect(prisma.regionalPayout.update).toHaveBeenCalledWith({
         where: { id: 'payout-1' },
         data: {
-          status: PayoutStatus.COMPLETED,
+          status: RegionalPayoutStatus.PAID,
           paidAt,
           paymentReference: 'REF-12345',
         },

@@ -1,6 +1,6 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { z } from 'zod';
-import { PayoutStatus, RevenuePayoutStatus } from '@prisma/client';
+import { RegionalPayoutStatus, RevenuePayoutStatus } from '@prisma/client';
 import prisma from '../lib/prisma.js';
 import { revenueTracker } from '../services/revenue-tracker.js';
 import { logAudit } from '../services/audit.js';
@@ -47,7 +47,7 @@ export default async function regionalPayoutsRoutes(fastify: FastifyInstance) {
     const query = request.query as {
       regionalPartnerId?: string;
       period?: string;
-      status?: RevenuePayoutStatus;
+      status?: RegionalPayoutStatus;
       limit?: string;
       offset?: string;
     };
@@ -200,7 +200,7 @@ export default async function regionalPayoutsRoutes(fastify: FastifyInstance) {
       });
     }
     
-    if (payout.status !== PayoutStatus.PENDING) {
+    if (payout.status !== RegionalPayoutStatus.PENDING) {
       return reply.status(400).send({
         success: false,
         error: { code: 'INVALID_STATUS', message: `Payout is ${payout.status}, expected PENDING` },
@@ -210,7 +210,7 @@ export default async function regionalPayoutsRoutes(fastify: FastifyInstance) {
     const updated = await prisma.regionalPayout.update({
       where: { id },
       data: {
-        status: PayoutStatus.PROCESSING,
+        status: RegionalPayoutStatus.APPROVED,
         approvedAt: new Date(),
         approvedBy: input.approved_by,
       },
@@ -220,7 +220,7 @@ export default async function regionalPayoutsRoutes(fastify: FastifyInstance) {
       action: 'approve',
       resource: 'regional_payout',
       resourceId: id,
-      newValue: { status: PayoutStatus.PROCESSING, approved_by: input.approved_by },
+      newValue: { status: RegionalPayoutStatus.APPROVED, approved_by: input.approved_by },
       request,
     });
     
