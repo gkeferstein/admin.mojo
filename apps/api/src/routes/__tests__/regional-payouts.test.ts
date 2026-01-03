@@ -13,6 +13,9 @@ vi.mock('../../lib/prisma.js', () => ({
       update: vi.fn(),
       create: vi.fn(),
     },
+    revenueRecord: {
+      findMany: vi.fn(),
+    },
   },
 }));
 
