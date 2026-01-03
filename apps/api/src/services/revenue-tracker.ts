@@ -1,6 +1,6 @@
 import prisma from '../lib/prisma.js';
 import { Decimal } from '@prisma/client/runtime/library';
-import { RevenueType, RevenuePayoutStatus, PayoutStatus } from '@prisma/client';
+import { RevenueType, RevenuePayoutStatus, PayoutStatus, AgreementStatus } from '@prisma/client';
 
 // ==============================================
 // Constants
@@ -53,7 +53,7 @@ export class RevenueTracker {
     const agreement = await prisma.regionalAgreement.findFirst({
       where: {
         regionCodes: { has: input.billingCountry.toUpperCase() },
-        status: 'ACTIVE',
+        status: AgreementStatus.ACTIVE,
         validFrom: { lte: input.paymentDate },
         OR: [
           { validUntil: null },
@@ -175,7 +175,7 @@ export class RevenueTracker {
     // Get all active regional agreements
     const agreements = await prisma.regionalAgreement.findMany({
       where: {
-        status: 'ACTIVE',
+        status: AgreementStatus.ACTIVE,
       },
     });
 
