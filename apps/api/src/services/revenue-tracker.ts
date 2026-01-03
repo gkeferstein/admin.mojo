@@ -139,7 +139,7 @@ export class RevenueTracker {
         regionId: input.regionId,
         regionalPartnerId: input.regionalPartnerId,
         payoutPeriod,
-        payoutStatus: 'PENDING',
+        payoutStatus: RevenuePayoutStatus.PENDING,
         metadata: input.metadata || {},
       },
     });
