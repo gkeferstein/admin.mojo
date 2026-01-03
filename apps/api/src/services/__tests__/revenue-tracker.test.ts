@@ -62,7 +62,7 @@ describe('RevenueTracker', () => {
       (prisma.regionalAgreement.findFirst as any).mockResolvedValue(mockAgreement);
       (prisma.revenueRecord.create as any).mockResolvedValue({
         id: 'revenue-1',
-        type: 'MEMBERSHIP',
+        type: RevenueType.MEMBERSHIP,
         amount: new Decimal(29),
         regionalPartnerProvision: new Decimal(8.7),
         platformOwnerAmount: new Decimal(20.3),
@@ -113,7 +113,7 @@ describe('RevenueTracker', () => {
     it('should create revenue record for transaction with transaction fee split', async () => {
       (prisma.revenueRecord.create as any).mockResolvedValue({
         id: 'revenue-2',
-        type: 'TRANSACTION',
+        type: RevenueType.TRANSACTION,
         amount: new Decimal(100),
         transactionFee: new Decimal(4.4),
         regionalPartnerProvision: new Decimal(1.32), // 30% of 4.40
@@ -160,13 +160,13 @@ describe('RevenueTracker', () => {
       const mockRevenues = [
         {
           id: 'revenue-1',
-          type: 'MEMBERSHIP',
+          type: RevenueType.MEMBERSHIP,
           amount: new Decimal(29),
           regionalPartnerProvision: new Decimal(8.7),
         },
         {
           id: 'revenue-2',
-          type: 'TRANSACTION',
+          type: RevenueType.TRANSACTION,
           amount: new Decimal(100),
           regionalPartnerProvision: new Decimal(1.32),
         },
