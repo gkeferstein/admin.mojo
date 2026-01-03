@@ -1,5 +1,6 @@
 import prisma from '../lib/prisma.js';
 import { Decimal } from '@prisma/client/runtime/library';
+import { RevenueType, RevenuePayoutStatus, PayoutStatus } from '@prisma/client';
 
 // ==============================================
 // Constants
@@ -80,7 +81,7 @@ export class RevenueTracker {
     // Create revenue record
     const revenueRecord = await prisma.revenueRecord.create({
       data: {
-        type: 'MEMBERSHIP',
+        type: RevenueType.MEMBERSHIP,
         amount: new Decimal(input.amount),
         currency: input.currency,
         stripePaymentId: input.stripePaymentId,
@@ -92,7 +93,7 @@ export class RevenueTracker {
         userId: input.userId,
         membershipType: input.membershipType,
         payoutPeriod,
-        payoutStatus: 'PENDING',
+        payoutStatus: RevenuePayoutStatus.PENDING,
         metadata: input.metadata || {},
       },
     });
@@ -125,7 +126,7 @@ export class RevenueTracker {
     // Create revenue record
     const revenueRecord = await prisma.revenueRecord.create({
       data: {
-        type: 'TRANSACTION',
+        type: RevenueType.TRANSACTION,
         amount: new Decimal(input.amount),
         currency: input.currency,
         stripePaymentId: input.stripePaymentId,
@@ -186,7 +187,7 @@ export class RevenueTracker {
         where: {
           regionalPartnerId: agreement.tenantId,
           payoutPeriod: period,
-          payoutStatus: 'PENDING',
+          payoutStatus: RevenuePayoutStatus.PENDING,
         },
       });
 
@@ -200,8 +201,8 @@ export class RevenueTracker {
         new Decimal(0)
       );
 
-      const membershipRevenues = revenues.filter(r => r.type === 'MEMBERSHIP');
-      const transactionRevenues = revenues.filter(r => r.type === 'TRANSACTION');
+      const membershipRevenues = revenues.filter(r => r.type === RevenueType.MEMBERSHIP);
+      const transactionRevenues = revenues.filter(r => r.type === RevenueType.TRANSACTION);
 
       const membershipProvision = membershipRevenues.reduce(
         (sum, r) => sum.plus(r.regionalPartnerProvision),
@@ -231,7 +232,7 @@ export class RevenueTracker {
           transactionProvision: transactionProvision.toDecimalPlaces(2),
           membershipCount: membershipRevenues.length,
           transactionCount: transactionRevenues.length,
-          status: 'PENDING',
+          status: PayoutStatus.PENDING,
         },
       });
 
@@ -242,7 +243,7 @@ export class RevenueTracker {
         },
         data: {
           payoutId: payout.id,
-          payoutStatus: 'APPROVED',
+          payoutStatus: RevenuePayoutStatus.APPROVED,
         },
       });
 
@@ -263,7 +264,7 @@ export class RevenueTracker {
     await prisma.regionalPayout.update({
       where: { id: payoutId },
       data: {
-        status: 'PAID',
+        status: PayoutStatus.COMPLETED,
         paidAt,
         paymentReference,
       },
@@ -273,7 +274,7 @@ export class RevenueTracker {
     await prisma.revenueRecord.updateMany({
       where: { payoutId },
       data: {
-        payoutStatus: 'PAID',
+        payoutStatus: RevenuePayoutStatus.PAID,
         payoutDate: paidAt,
         payoutReference: paymentReference,
       },
