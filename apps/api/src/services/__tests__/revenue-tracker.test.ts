@@ -56,7 +56,7 @@ describe('RevenueTracker', () => {
         tenantName: 'MOJO GmbH',
         regionCodes: ['DE', 'AT', 'CH'],
         regionName: 'DACH',
-        status: 'ACTIVE',
+        status: 'ACTIVE', // Mock data - AgreementStatus enum not needed here
       };
 
       (prisma.regionalAgreement.findFirst as any).mockResolvedValue(mockAgreement);

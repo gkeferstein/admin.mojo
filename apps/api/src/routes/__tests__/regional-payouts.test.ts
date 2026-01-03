@@ -99,7 +99,7 @@ describe('Regional Payouts Routes', () => {
         transactionProvision: new Decimal(1.32),
         membershipCount: 1,
         transactionCount: 1,
-        status: 'PAID',
+        status: PayoutStatus.COMPLETED,
         approvedAt: new Date('2025-02-01'),
         approvedBy: 'admin-1',
         paidAt: new Date('2025-02-15'),
