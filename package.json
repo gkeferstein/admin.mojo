@@ -9,6 +9,7 @@
     "start": "pnpm --parallel start",
     "lint": "pnpm --parallel lint",
     "typecheck": "pnpm --parallel typecheck",
+    "test": "pnpm --filter api test",
     "db:migrate": "pnpm --filter api db:migrate",
     "db:generate": "pnpm --filter api db:generate",
     "db:seed": "pnpm --filter api db:seed",
